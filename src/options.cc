@@ -187,6 +187,13 @@ OptionsBuilder& OptionsBuilder::RxDupCacheTimeout(size_t ms)
   return *this;
 }
 
+// HyperProto options
+OptionsBuilder& OptionsBuilder::Proxy(ccb::ClosureFunc<Addr(const Addr&)> f)
+{
+  opt_->proxy_f = f;
+  return *this;
+}
+
 // UdpIO options
 
 OptionsBuilder& OptionsBuilder::UdpIOModule(std::string name)

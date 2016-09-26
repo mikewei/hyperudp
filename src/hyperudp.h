@@ -105,6 +105,7 @@ public:
   OptionsBuilder& RxDupCacheSize(size_t num);
   OptionsBuilder& RxDupCacheTimeout(size_t num);
 
+  OptionsBuilder& Proxy(ccb::ClosureFunc<Addr(const Addr&)> f);
   OptionsBuilder& UdpIOModule(std::string name);
   OptionsBuilder& ChunkAllocModule(std::string name);
 

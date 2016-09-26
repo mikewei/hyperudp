@@ -84,6 +84,12 @@ public:
   uint16_t port() const {
     return ntohs(sa_.sin_port);
   }
+  uint32_t n_ip() const {
+    return sa_.sin_addr.s_addr;
+  }
+  uint16_t n_port() const {
+    return sa_.sin_port;
+  }
   const char* ip_str() const {
     static thread_local char buf[32];
     uint32_t ip = this->ip();

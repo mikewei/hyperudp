@@ -485,6 +485,16 @@ void HyperProto::OnFlushTxBuffer(Peer* peer,
 
   size_t pkt_len = ptr - buffer;
   pkt_hdr->pkt_len = htons(pkt_len);
+
+  if (env_.opt().proxy_f) { // proxy is enabled
+    Addr proxy_addr = env_.opt().proxy_f(peer->addr());
+    pkt_hdr->to_ip = peer->addr().n_ip();
+    pkt_hdr->to_port = peer->addr().n_port();
+    DLOG("flush %lu segments to network with proxy", count);
+    on_udp_send_({buffer, pkt_len}, proxy_addr);
+    return;
+  }
+
   DLOG("flush %lu segments to network", count);
   on_udp_send_({buffer, pkt_len}, peer->addr());
 }

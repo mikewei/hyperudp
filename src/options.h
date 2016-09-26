@@ -61,6 +61,8 @@ public:
   bool enable_rx_dup_cache = true;
   size_t rx_dup_cache_size = 0;
   uint32_t rx_dup_cache_timeout = 0;
+  // HyperProto options
+  ccb::ClosureFunc<Addr(const Addr&)> proxy_f = nullptr;
   // UdpIO options
   std::string udp_io_module;
   // AllocChunk options

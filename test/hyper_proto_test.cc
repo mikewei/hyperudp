@@ -12,7 +12,7 @@ using hudp::LogLevel;;
 
 static constexpr LogLevel kCurLogLevel = hudp::kError;
 
-class HyperProtoTest : public testing::Test
+class HyperProtoTest : public testing::TestWithParam<bool>
 {
 protected:
   HyperProtoTest()
@@ -21,16 +21,22 @@ protected:
     , c_env_(hudp::OptionsBuilder().LogHandler(kCurLogLevel,
                            [this](LogLevel, const char* s) {
                              printf("[client] %s\n", s);
-                           }).Build(), &tw_)
+                           }).Proxy(GetProxy()).Build(), &tw_)
     , s_env_(hudp::OptionsBuilder().LogHandler(kCurLogLevel, 
                            [this](LogLevel, const char* s) {
                              printf("[server] %s\n", s);
-                           }).Build(), &tw_)
+                           }).Proxy(GetProxy()).Build(), &tw_)
     , client_(c_env_)
     , server_(s_env_)
     , c_recv_buf_len_(0) {}
 
   virtual ~HyperProtoTest() {}
+  ccb::ClosureFunc<Addr(const Addr&)> GetProxy() const {
+    if (!GetParam()) return nullptr;
+    return [](const Addr& dst) {
+      return dst;
+    };
+  }
 
   virtual void SetUp() {
     client_.Init([this](const Buf& buf, const Addr& addr) {
@@ -66,7 +72,9 @@ protected:
   size_t c_recv_buf_len_;
 };
 
-PERF_TEST_F(HyperProtoTest, SmallPacket)
+INSTANTIATE_TEST_CASE_P(EnableProxy, HyperProtoTest, testing::Values(false, true));
+
+PERF_TEST_P(HyperProtoTest, SmallPacket)
 {
   static uint8_t pkt_data[100];
   static Addr addr{"127.0.0.1", 9999};
@@ -82,7 +90,7 @@ PERF_TEST_F(HyperProtoTest, SmallPacket)
   c_recv_buf_len_ = 0;
 }
 
-PERF_TEST_F(HyperProtoTest, BigPacket)
+PERF_TEST_P(HyperProtoTest, BigPacket)
 {
   static uint8_t pkt_data[2000];
   static Addr addr{"127.0.0.1", 9999};
