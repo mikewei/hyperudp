@@ -38,7 +38,6 @@ class TxRequest;
 class RxRequest;
 class PeerManager;
 class Peer;
-class TxSessions; // to be deleted
 class TxSessionManager;
 class FragCache;
 class RxDupCache;
@@ -96,7 +95,6 @@ private:
 private:
   const Env& env_;
   std::unique_ptr<PeerManager> peer_mgr_;
-  std::unique_ptr<TxSessions> tx_sess_;
   std::unique_ptr<TxSessionManager> tx_sess_mgr_;
   std::unique_ptr<FragCache> frag_cache_;
   std::unique_ptr<RxDupCache> rx_dup_cache_;

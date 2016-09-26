@@ -50,7 +50,6 @@ struct RxRequest
 
 HyperProto::HyperProto(const Env& env)
   : env_(env)
-  , tx_sess_(new TxSessions(env))
   , tx_sess_mgr_(new TxSessionManager(env))
   , frag_cache_(new FragCache(env))
   , rx_dup_cache_(new RxDupCache(env))
@@ -66,15 +65,6 @@ bool HyperProto::Init(OnUdpSend on_send, OnUsrRecv on_recv)
 {
   using ccb::BindClosure;
   const Options& opt = env_.opt();
-  // init TxSessions
-  if (!tx_sess_->Init(opt.max_tx_sessions / opt.worker_num, 
-                      FragDataSize(opt.max_udp_pkt_size), 
-                      opt.retrans_timeouts,
-                      BindClosure(this, &HyperProto::OnTxSessionsSendFrag),
-                      BindClosure(this, &HyperProto::OnSessDone))) {
-    ELOG("HyperProto: init TxSessions failed!");
-    return false;
-  }
   // init TxSessionManager
   if (!tx_sess_mgr_->Init(opt.max_tx_sessions / opt.worker_num, 
                           FragDataSize(opt.max_udp_pkt_size), 
@@ -156,15 +146,6 @@ void HyperProto::StartTxRequest(TxRequest* req)
          req->size > sizeof(TxRequest));
   req->ref_count++;
   req->peer = peer_mgr_->GetPeer({req->ip, req->port});
-  /*
-  if (!tx_sess_->AddSession({req->data, req->size - sizeof(TxRequest)},
-                            {req->ip, req->port}, 
-                            req->peer->next_seq(), (void*)req)) {
-    if (req->on_sent) req->on_sent(R_ERROR);
-    if (!--req->ref_count) DelTxRequest(req);
-    WLOG("AddSession failed!");
-    return;
-  }*/
   if (!tx_sess_mgr_->AddSession(req)) {
     if (req->on_sent) req->on_sent(R_ERROR);
     if (!--req->ref_count) DelTxRequest(req);
@@ -206,32 +187,6 @@ void HyperProto::StartRxRequest(RxRequest* req)
 void HyperProto::DelRxRequest(RxRequest* req)
 {
   env_.alloc().Free(req, req->size);
-}
-
-// to be deleted
-void HyperProto::OnTxSessionsSendFrag(const Buf& buf,
-                                      const Addr& addr,
-                                      uint32_t seq,
-                                      uint16_t frag_count,
-                                      uint16_t frag_index,
-                                      void* ctx)
-{
-  TxRequest* req = static_cast<TxRequest*>(ctx);
-  req->ref_count++;
-  req->peer->tx_buffer()->AddData(seq, frag_count, frag_index, buf, req);
-  DLOG("TxSessionSendFrag len:%lu id:(-, -, %u, %hu, %hu)", 
-                                 buf.len(), seq, frag_count, frag_index);
-}
-
-// to be deleted
-void HyperProto::OnSessDone(Result res, void* ctx)
-{
-  assert(ctx);
-  TxRequest* req = static_cast<TxRequest*>(ctx);
-  if (req->on_sent) req->on_sent(res);
-  if (!--req->ref_count) {
-    DelTxRequest(req);
-  }
 }
 
 void HyperProto::OnTxSessSendFrag(TxRequest* req,
