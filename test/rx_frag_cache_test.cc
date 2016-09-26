@@ -1,18 +1,18 @@
 #include "gtestx/gtestx.h"
-#include "hyperudp/frag_cache.h"
+#include "hyperudp/rx_frag_cache.h"
 
 using hudp::Buf;
 using hudp::Addr;
 using hudp::Result;
 
-class FragCacheTest : public testing::Test
+class RxFragCacheTest : public testing::Test
 {
 protected:
-  FragCacheTest()
+  RxFragCacheTest()
     : env_(hudp::OptionsBuilder().Build(), &tw_)
     , fc_(env_)
     , tw_(1000, false) {}
-  virtual ~FragCacheTest() {}
+  virtual ~RxFragCacheTest() {}
 
   virtual void SetUp() {
     fc_.Init(10000, 5, 
@@ -28,13 +28,13 @@ protected:
   }
 
   hudp::Env env_;
-  hudp::FragCache fc_;
+  hudp::RxFragCache fc_;
   ccb::TimerWheel tw_;
   size_t success_count_ = 0;
   size_t timeout_count_ = 0;
 };
 
-TEST_F(FragCacheTest, SingleFrag)
+TEST_F(RxFragCacheTest, SingleFrag)
 {
   char dummy[256];
   ASSERT_EQ(0UL, this->success_count_);
@@ -44,7 +44,7 @@ TEST_F(FragCacheTest, SingleFrag)
   ASSERT_EQ(0UL, this->timeout_count_);
 }
 
-TEST_F(FragCacheTest, MultiFragsNormal)
+TEST_F(RxFragCacheTest, MultiFragsNormal)
 {
   char dummy[256];
   ASSERT_EQ(0UL, this->success_count_);
@@ -61,7 +61,7 @@ TEST_F(FragCacheTest, MultiFragsNormal)
   ASSERT_EQ(0UL, this->timeout_count_);
 }
 
-TEST_F(FragCacheTest, MultiFragsTimeout)
+TEST_F(RxFragCacheTest, MultiFragsTimeout)
 {
   char dummy[256];
   ASSERT_EQ(0UL, this->success_count_);
@@ -73,7 +73,7 @@ TEST_F(FragCacheTest, MultiFragsTimeout)
   ASSERT_EQ(1UL, this->timeout_count_);
 }
 
-PERF_TEST_F(FragCacheTest, MultiFragsPerf)
+PERF_TEST_F(RxFragCacheTest, MultiFragsPerf)
 {
   static hudp::Addr addr{"127.0.0.1", 9999};
   char dummy[256];

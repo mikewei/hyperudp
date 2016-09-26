@@ -28,16 +28,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <assert.h>
-#include "hyperudp/frag_cache.h"
+#include "hyperudp/rx_frag_cache.h"
 
 namespace hudp {
 
-bool FragCache::Init(size_t htable_size,
+bool RxFragCache::Init(size_t htable_size,
                      uint32_t timeout,
                      OnComplete on_complete)
 {
   if (!hash_table_.InitForWrite("", htable_size)) {
-    ELOG("FragCache: hash table init failed! size = %lu", htable_size);
+    ELOG("RxFragCache: hash table init failed! size = %lu", htable_size);
     return false;
   }
   timeout_ = timeout;
@@ -46,7 +46,7 @@ bool FragCache::Init(size_t htable_size,
   return true;
 }
 
-bool FragCache::AddFrag(const Addr& addr, uint32_t proc_sess_id, uint32_t seq,
+bool RxFragCache::AddFrag(const Addr& addr, uint32_t proc_sess_id, uint32_t seq,
                         uint16_t frag_count, uint16_t frag_index, void* frag)
 {
   assert(frag_index < frag_count);
@@ -55,7 +55,7 @@ bool FragCache::AddFrag(const Addr& addr, uint32_t proc_sess_id, uint32_t seq,
   Node* node = (Node*)hash_table_.FindOrAlloc(key, &is_found);
   if (!node) {
     // overflow
-    WLOG("FragCache: hash-table overflow!");
+    WLOG("RxFragCache: hash-table overflow!");
     return false;
   } else if (!is_found) {
     // initialize new node
@@ -101,7 +101,7 @@ bool FragCache::AddFrag(const Addr& addr, uint32_t proc_sess_id, uint32_t seq,
   return true;
 }
 
-void FragCache::OnNodeTimeout(Node* node)
+void RxFragCache::OnNodeTimeout(Node* node)
 {
   on_complete_({node->key.ip, node->key.port},
                node->key.proc_sess_id, node->key.seq, 
@@ -109,7 +109,7 @@ void FragCache::OnNodeTimeout(Node* node)
   DeleteNode(node);
 }
 
-void FragCache::DeleteNode(Node* node)
+void RxFragCache::DeleteNode(Node* node)
 {
   node->timer_owner.~TimerOwner();
   if (node->frag_list != node->frag_buf)

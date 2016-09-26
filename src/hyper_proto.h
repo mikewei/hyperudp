@@ -39,7 +39,7 @@ class RxRequest;
 class PeerManager;
 class Peer;
 class TxSessionManager;
-class FragCache;
+class RxFragCache;
 class RxDupCache;
 class SegDesc;
 
@@ -84,19 +84,19 @@ private:
   void ParseRxPacket(const Buf& buf, const Addr& addr, RxRequest* req);
   void SendAck(RxRequest* req, uint32_t proc_sess_id, uint32_t seq, 
                uint16_t frag_count, uint16_t frag_index);
-  void OnFragCacheComplete(const Addr& addr, 
-                           uint32_t proc_sess_id,
-                           uint32_t seq, 
-                           uint16_t frag_count, 
-                           void** frag_list,
-                           Result result);
+  void OnRxFragCacheComplete(const Addr& addr,
+                             uint32_t proc_sess_id,
+                             uint32_t seq,
+                             uint16_t frag_count,
+                             void** frag_list,
+                             Result result);
   void OnFlushTxBuffer(Peer* peer, const SegDesc* segs, size_t count);
 
 private:
   const Env& env_;
   std::unique_ptr<PeerManager> peer_mgr_;
   std::unique_ptr<TxSessionManager> tx_sess_mgr_;
-  std::unique_ptr<FragCache> frag_cache_;
+  std::unique_ptr<RxFragCache> frag_cache_;
   std::unique_ptr<RxDupCache> rx_dup_cache_;
   OnUdpSend on_udp_send_;
   OnUsrRecv on_usr_recv_;

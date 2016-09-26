@@ -33,7 +33,7 @@
 #include "hyperudp/peer_manager.h"
 #include "hyperudp/tx_session_manager.h"
 #include "hyperudp/tx_sessions.h"
-#include "hyperudp/frag_cache.h"
+#include "hyperudp/rx_frag_cache.h"
 #include "hyperudp/rx_dup_cache.h"
 
 namespace hudp {
@@ -51,7 +51,7 @@ struct RxRequest
 HyperProto::HyperProto(const Env& env)
   : env_(env)
   , tx_sess_mgr_(new TxSessionManager(env))
-  , frag_cache_(new FragCache(env))
+  , frag_cache_(new RxFragCache(env))
   , rx_dup_cache_(new RxDupCache(env))
   , proc_sess_id_(env_.Rand())
 {
@@ -74,12 +74,12 @@ bool HyperProto::Init(OnUdpSend on_send, OnUsrRecv on_recv)
     ELOG("HyperProto: init TxSessionManager failed!");
     return false;
   }
-  // init FragCache
+  // init RxFragCache
   if (!frag_cache_->Init(opt.max_frag_cache_nodes / opt.worker_num,
                          opt.frag_cache_timeout,
-                         BindClosure(this, &HyperProto::OnFragCacheComplete)))
-  {
-    ELOG("HyperProto: init FragCache failed!");
+                         BindClosure(this,
+                                     &HyperProto::OnRxFragCacheComplete))) {
+    ELOG("HyperProto: init RxFragCache failed!");
     return false;
   }
   // init RxDupCache
@@ -273,11 +273,11 @@ void HyperProto::ParseRxPacket(const Buf& buf, const Addr& addr,
           }
           frag_req->peer = req->peer;
         }
-        frag_req->ref_count++; // acquire reference for FragCache
+        frag_req->ref_count++; // acquire reference for RxFragCache
         new (&frag_req->frag_buf) Buf(data_seg->data, data_len);
         if (!frag_cache_->AddFrag(addr, proc_sess_id, seq, frag_count, 
                                   frag_index, (void*)frag_req)) {
-          // release reference for FragCache
+          // release reference for RxFragCache
           if (!--frag_req->ref_count) DelRxRequest(frag_req);
           ILOG("ParseRxPacket: AddFrag failed!");
         }
@@ -379,12 +379,12 @@ void HyperProto::SendAck(RxRequest* req,
                                  proc_sess_id, seq, frag_count, frag_index);
 }
 
-void HyperProto::OnFragCacheComplete(const Addr& addr, 
-                                     uint32_t proc_sess_id,
-                                     uint32_t seq, 
-                                     uint16_t frag_count, 
-                                     void** frag_list,
-                                     Result result)
+void HyperProto::OnRxFragCacheComplete(const Addr& addr,
+                                       uint32_t proc_sess_id,
+                                       uint32_t seq,
+                                       uint16_t frag_count,
+                                       void** frag_list,
+                                       Result result)
 {
   Peer* peer = nullptr;
   std::string pkt;
@@ -398,7 +398,7 @@ void HyperProto::OnFragCacheComplete(const Addr& addr,
     if (result == R_SUCCESS) {
       pkt.append(req->frag_buf.char_ptr(), req->frag_buf.len());
     }
-    if (!--req->ref_count) DelRxRequest(req); // release ref by FragCache
+    if (!--req->ref_count) DelRxRequest(req); // release ref by RxFragCache
   }
   if (result == R_SUCCESS) {
     if (!rx_dup_cache_->CheckDup(peer, proc_sess_id, seq)) {

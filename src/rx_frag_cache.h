@@ -41,7 +41,7 @@
 
 namespace hudp {
 
-class FragCache
+class RxFragCache
 {
 public:
   using OnComplete = ccb::ClosureFunc<void(const Addr& addr,
@@ -51,7 +51,7 @@ public:
                                            void** frag_list,
                                            Result result)>;
 
-  FragCache(const Env& env)
+  RxFragCache(const Env& env)
     : env_(env) {}
 
   bool Init(size_t htable_size,
@@ -113,9 +113,9 @@ private:
 namespace std {
 
 template <>
-struct hash<hudp::FragCache::NodeKey>
+struct hash<hudp::RxFragCache::NodeKey>
 {
-  std::size_t operator()(const hudp::FragCache::NodeKey& key) const {
+  std::size_t operator()(const hudp::RxFragCache::NodeKey& key) const {
     return (key.ip + ((size_t)key.port << 16UL)
                    + ((size_t)key.seq << 32UL)
                    + ((size_t)key.proc_sess_id << 32UL));
