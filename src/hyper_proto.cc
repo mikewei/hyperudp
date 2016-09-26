@@ -75,8 +75,8 @@ bool HyperProto::Init(OnUdpSend on_send, OnUsrRecv on_recv)
     return false;
   }
   // init RxFragCache
-  if (!frag_cache_->Init(opt.max_frag_cache_nodes / opt.worker_num,
-                         opt.frag_cache_timeout,
+  if (!frag_cache_->Init(opt.max_rx_frag_cache_nodes / opt.worker_num,
+                         opt.rx_frag_cache_timeout,
                          BindClosure(this,
                                      &HyperProto::OnRxFragCacheComplete))) {
     ELOG("HyperProto: init RxFragCache failed!");

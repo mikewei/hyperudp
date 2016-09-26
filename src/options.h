@@ -47,16 +47,16 @@ public:
   // WorkerGroup options
   size_t worker_num = 0;
   size_t worker_queue_size = 10000;
-  // TxSessions options
+  // TxSessionManager options
   size_t max_tx_sessions = 0;
   size_t max_udp_pkt_size = 0;
   std::vector<uint32_t> retrans_timeouts;
   // TxBuffer options
   std::string tx_delay_algo_module;
   size_t max_tx_delay = 0;
-  // FragCache options
-  size_t max_frag_cache_nodes = 0;
-  uint32_t frag_cache_timeout = 0;
+  // RxFragCache options
+  size_t max_rx_frag_cache_nodes = 0;
+  uint32_t rx_frag_cache_timeout = 0;
   // RxDupCache options
   bool enable_rx_dup_cache = true;
   size_t rx_dup_cache_size = 0;

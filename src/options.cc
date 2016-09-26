@@ -44,16 +44,16 @@ OptionsBuilder::OptionsBuilder()
   // WorkerGroup options
   WorkerNumber(2);
   WorkerQueueSize(10000);
-  // TxSessions options
+  // TxSessionManager options
   MaxTxSessions(200000);
   MaxUdpPktSize(1400);
   RetransTimeouts({200, 1000});
   // TxBuffer options
   TxDelayAlgoModule("tb_max_tx_delay");
   MaxTxDelay(5);
-  // FragCache options
-  MaxFragCacheNodes(200000);
-  FragCacheTimeout(2000);
+  // RxFragCache options
+  MaxRxFragCacheNodes(200000);
+  RxFragCacheTimeout(2000);
   // RxDupCache options
   EnableRxDupCache(true);
   RxDupCacheSize(4000000);
@@ -101,7 +101,7 @@ OptionsBuilder& OptionsBuilder::WorkerQueueSize(size_t num)
   return *this;
 }
 
-// TxSessions options
+// TxSessionManager options
 
 OptionsBuilder& OptionsBuilder::MaxTxSessions(size_t num)
 {
@@ -144,23 +144,23 @@ OptionsBuilder& OptionsBuilder::MaxTxDelay(size_t ms)
   return *this;
 }
 
-// FragCache options
+// RxFragCache options
 
-OptionsBuilder& OptionsBuilder::MaxFragCacheNodes(size_t num)
+OptionsBuilder& OptionsBuilder::MaxRxFragCacheNodes(size_t num)
 {
   if (num < opt_->worker_num) {
     throw std::invalid_argument("Invalid value!");
   }
-  opt_->max_frag_cache_nodes = num;
+  opt_->max_rx_frag_cache_nodes = num;
   return *this;
 }
 
-OptionsBuilder& OptionsBuilder::FragCacheTimeout(size_t ms)
+OptionsBuilder& OptionsBuilder::RxFragCacheTimeout(size_t ms)
 {
   if (ms > std::numeric_limits<uint32_t>::max() || ms <= 0) {
     throw std::invalid_argument("Invalid timeout value!");
   }
-  opt_->frag_cache_timeout = ms;
+  opt_->rx_frag_cache_timeout = ms;
   return *this;
 }
 

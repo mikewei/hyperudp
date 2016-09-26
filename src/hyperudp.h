@@ -98,8 +98,8 @@ public:
   OptionsBuilder& TxDelayAlgoModule(std::string name);
   OptionsBuilder& MaxTxDelay(size_t ms);
 
-  OptionsBuilder& MaxFragCacheNodes(size_t num);
-  OptionsBuilder& FragCacheTimeout(size_t ms);
+  OptionsBuilder& MaxRxFragCacheNodes(size_t num);
+  OptionsBuilder& RxFragCacheTimeout(size_t ms);
 
   OptionsBuilder& EnableRxDupCache(bool on);
   OptionsBuilder& RxDupCacheSize(size_t num);
