@@ -66,7 +66,7 @@ public:
    *
    * @return  created Options object
    */
-  Options Build() const;
+  Options Build();
 
   /* Set the log level and log handler
    * @lv      only logs with level <= @lv will be handled

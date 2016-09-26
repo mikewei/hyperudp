@@ -28,6 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <limits>
+#include "gflags/gflags.h"
 #include "hyperudp/options.h"
 #include "hyperudp/constants.h"
 #include "hyperudp/module_registry.h"
@@ -37,6 +38,47 @@ namespace hudp {
 class UdpIO;
 class ChunkAlloc;
 class TxDelayAlgo;
+
+#define GFLAGS_DEFINE(name, type, deft, desc) \
+  DEFINE_##type(hudp_##name, deft, desc)
+#define GFLAGS_DEFINE_U64(name, desc) GFLAGS_DEFINE(name, uint64, 0, desc)
+#define GFLAGS_DEFINE_STR(name, desc) GFLAGS_DEFINE(name, string, "", desc)
+#define GFLAGS_DEFINE_BOOL(name, desc) GFLAGS_DEFINE(name, bool, false, desc)
+
+#define GFLAGS_MAY_OVERRIDE(name, setter) do { \
+  google::CommandLineFlagInfo info; \
+  if (google::GetCommandLineFlagInfo("hudp_" #name, &info) \
+      && !info.is_default) { \
+    setter(FLAGS_hudp_##name); \
+  } \
+} while(0)
+
+// WorkerGroup options
+GFLAGS_DEFINE_U64(worker_num, "number of worker threads");
+GFLAGS_DEFINE_U64(worker_queue_size, "size of queue consumed by worker");
+// TxSessionManager options
+GFLAGS_DEFINE_U64(max_tx_sessions, "max number of pending tx sessions");
+GFLAGS_DEFINE_U64(max_udp_pkt_size,
+                  "max udp packet size without fragmentation");
+// TxBuffer options
+GFLAGS_DEFINE_STR(tx_delay_algo_module,
+                  "module name of tx-delay-algorithm implementation");
+GFLAGS_DEFINE_U64(max_tx_delay,
+                  "max tx delay when using max-delay-algorithm family");
+// RxFragCache options
+GFLAGS_DEFINE_U64(max_rx_frag_cache_nodes,
+                 "max nodes of rx-frag-cache for pending imcomplete packets");
+GFLAGS_DEFINE_U64(rx_frag_cache_timeout,
+                  "timeout of rx-frag-cache for pending imcomplete packets");
+// RxDupCache options
+GFLAGS_DEFINE_BOOL(enable_rx_dup_cache, "enable rx-dup-cache");
+GFLAGS_DEFINE_U64(rx_dup_cache_size, "size of rx-dup-cache");
+GFLAGS_DEFINE_U64(rx_dup_cache_timeout, "timeout of rx-dup-cache");
+// UdpIO options
+GFLAGS_DEFINE_STR(udp_io_module, "module name of udp_io implementation");
+// AllocChunk options
+GFLAGS_DEFINE_STR(chunk_alloc_module,
+                  "module name of chunk_alloc implementation");
 
 OptionsBuilder::OptionsBuilder()
   : opt_(new Options)
@@ -68,8 +110,21 @@ OptionsBuilder::~OptionsBuilder()
 {
 }
 
-Options OptionsBuilder::Build() const
+Options OptionsBuilder::Build()
 {
+  GFLAGS_MAY_OVERRIDE(worker_num, WorkerNumber);
+  GFLAGS_MAY_OVERRIDE(worker_queue_size, WorkerQueueSize);
+  GFLAGS_MAY_OVERRIDE(max_tx_sessions, MaxTxSessions);
+  GFLAGS_MAY_OVERRIDE(max_udp_pkt_size, MaxUdpPktSize);
+  GFLAGS_MAY_OVERRIDE(tx_delay_algo_module, TxDelayAlgoModule);
+  GFLAGS_MAY_OVERRIDE(max_tx_delay, MaxTxDelay);
+  GFLAGS_MAY_OVERRIDE(max_rx_frag_cache_nodes, MaxRxFragCacheNodes);
+  GFLAGS_MAY_OVERRIDE(rx_frag_cache_timeout, RxFragCacheTimeout);
+  GFLAGS_MAY_OVERRIDE(enable_rx_dup_cache, EnableRxDupCache);
+  GFLAGS_MAY_OVERRIDE(rx_dup_cache_size, RxDupCacheSize);
+  GFLAGS_MAY_OVERRIDE(rx_dup_cache_timeout, RxDupCacheTimeout);
+  GFLAGS_MAY_OVERRIDE(udp_io_module, UdpIOModule);
+  GFLAGS_MAY_OVERRIDE(chunk_alloc_module, ChunkAllocModule);
   return Options(*opt_);
 }
 

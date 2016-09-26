@@ -20,6 +20,7 @@ cc_library(
 	deps = [
 		"//ccbase",
 		"//shm_container",
+    "//third_party/gflags-20",
   ],
 )
 
