@@ -54,7 +54,6 @@ cc_binary(
 	srcs = ["example/echo_server.cc"],
 	deps = [
 		":hyperudp",
-    "//third_party/gflags-20",
 	],
 	malloc = "//third_party/jemalloc-360"
 )
@@ -71,7 +70,6 @@ cc_binary(
 	srcs = ["example/echo_client.cc"],
 	deps = [
 		":hyperudp",
-    "//third_party/gflags-20",
 	],
 	malloc = "//third_party/jemalloc-360"
 )
