@@ -15,6 +15,7 @@ using hudp::Result;
 DEFINE_string(server, "127.0.0.1:19933", "server address (ip:port)");
 DEFINE_uint64(qps, 10000, "qps");
 DEFINE_uint64(len, 100, "packet length");
+DEFINE_uint64(port, 19944, "local port to bind");
 
 void StartEchoClient()
 {
@@ -24,7 +25,7 @@ void StartEchoClient()
     }).Build()
   };
 
-  if (!hyper_udp.Init(19944, [](const Buf& buf, const Addr& addr) {
+  if (!hyper_udp.Init(FLAGS_port, [](const Buf& buf, const Addr& addr) {
   })) {
     fprintf(stderr, "init failed!\n");
     return;
