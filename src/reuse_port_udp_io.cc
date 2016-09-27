@@ -27,6 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include <sys/types.h>
+#include <sys/socket.h>
 #include "ccbase/thread.h"
 #include "hyperudp/reuse_port_udp_io.h"
 
@@ -67,6 +69,7 @@ bool ReusePortUdpIO::ThreadContext::Init(const Addr& listen_addr)
     ELOG("create socket failed (errno: %d) !", errno);
     return false;
   }
+#ifdef SO_REUSEPORT
   // set reuse-port
   int optval = 1;
   if (setsockopt(sock_, SOL_SOCKET, SO_REUSEPORT,
@@ -76,6 +79,12 @@ bool ReusePortUdpIO::ThreadContext::Init(const Addr& listen_addr)
     sock_ = -1;
     return false;
   }
+#else
+  ELOG("SO_REUSEPORT is not available in this platform!");
+  close(sock_);
+  sock_ = -1;
+  return false;
+#endif
   // set receive timeout
   struct timeval rto{0, 4000};
   if (setsockopt(sock_, SOL_SOCKET, SO_RCVTIMEO,

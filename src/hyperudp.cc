@@ -28,6 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <sys/time.h>
+#include <assert.h>
 #include "ccbase/worker_group.h"
 #include "hyperudp/hyperudp.h"
 #include "hyperudp/options.h"
@@ -70,11 +71,13 @@ private:
   std::vector<std::unique_ptr<HyperProto>> hyper_proto_;
   std::unique_ptr<ccb::WorkerGroup> workers_;
   OnRecv on_recv_;
+  bool is_initialized_;
 };
 
 HyperUdp::Impl::Impl(const Options& opt)
   : env_(opt)
   , udp_io_(GET_MODULE(UdpIO, env_.opt().udp_io_module, env_))
+  , is_initialized_(false)
 {
 }
 
@@ -84,6 +87,7 @@ HyperUdp::Impl::~Impl()
 
 bool HyperUdp::Impl::Init(const Addr& addr, OnRecv& on_recv)
 {
+  assert(!is_initialized_);
   on_recv_ = std::move(on_recv);
   size_t worker_num = env_.opt().worker_num;
   // initialize HyperProto
@@ -102,14 +106,21 @@ bool HyperUdp::Impl::Init(const Addr& addr, OnRecv& on_recv)
   // initialize WorkerGroup
   workers_.reset(new ccb::WorkerGroup(worker_num, env_.opt().worker_queue_size));
   // initialize UdpIO
-  udp_io_->Init(addr, [this](const Buf& buf, const Addr& peer) {
+  if (!udp_io_->Init(addr, [this](const Buf& buf, const Addr& peer) {
     this->OnUdpRecv(buf, peer);
-  });
+  })) {
+    // rollback
+    workers_.reset();
+    hyper_proto_.clear();
+    return false;
+  }
+  is_initialized_ = true;
   return true;
 }
 
 void HyperUdp::Impl::OnUdpRecv(const Buf& buf, const Addr& addr)
 {
+  assert(is_initialized_);
   size_t wid = Hash(addr, workers_->size());
   RxRequest* req = hyper_proto_[wid]->NewRxRequest(buf, addr);
   if (!req) {
@@ -127,6 +138,7 @@ void HyperUdp::Impl::OnUdpRecv(const Buf& buf, const Addr& addr)
 
 void HyperUdp::Impl::Send(const Buf& buf, const Addr& addr, OnSent& done)
 {
+  assert(is_initialized_);
   size_t wid = Hash(addr, workers_->size());
   TxRequest* req = hyper_proto_[wid]->NewTxRequest(buf, addr, std::move(done));
   if (!req) {

@@ -27,6 +27,7 @@ void StartEchoClient()
   if (!hyper_udp.Init(19944, [](const Buf& buf, const Addr& addr) {
   })) {
     fprintf(stderr, "init failed!\n");
+    return;
   }
 
   auto ip_port = Addr::ParseFromString(FLAGS_server);
