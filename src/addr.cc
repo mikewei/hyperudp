@@ -35,6 +35,10 @@ namespace hudp {
 
 std::pair<bool, Addr> Addr::ParseFromString(const std::string& ip_port)
 {
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    defined(__GNUC_PATCHLEVEL__) && \
+    __GNUC__*10000000 + __GNUC_MINOR__*10000 + __GNUC_PATCHLEVEL__ >= 40090000
+  // gcc >= 4.9.0 and std::regex is available
   std::regex re("([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+):([0-9]+)");
   std::smatch match;
   if (!std::regex_match(ip_port, match, re)) {
@@ -42,6 +46,15 @@ std::pair<bool, Addr> Addr::ParseFromString(const std::string& ip_port)
   }
   std::string ip = match[1];
   unsigned long port = strtoul(match[2].str().c_str(), NULL, 10);
+#else
+  // naive string parse
+  auto pos = ip_port.find(':');
+  if (pos == std::string::npos || pos == 0 || pos == ip_port.size() - 1) {
+    return std::make_pair(false, Addr(0U, 0));
+  }
+  std::string ip = ip_port.substr(0, pos);
+  unsigned long port = strtoul(ip_port.c_str() + pos + 1, NULL, 10);
+#endif
   if (port <= 0 || port > 65535) {
     return std::make_pair(false, Addr(0U, 0));
   }
