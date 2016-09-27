@@ -1,3 +1,5 @@
+#include <sys/types.h>
+#include <sys/socket.h>
 #include "gtestx/gtestx.h"
 #include "hyperudp/env.h"
 #include "hyperudp/simple_udp_io.h"
@@ -24,8 +26,11 @@ protected:
   std::atomic_int counter_{0};
 };
 
-using TestTypes = testing::Types<hudp::SimpleUdpIO,
-                                 hudp::ReusePortUdpIO>;
+using TestTypes = testing::Types<hudp::SimpleUdpIO
+#ifdef SO_REUSEPORT
+                                ,hudp::ReusePortUdpIO
+#endif
+                                >;
 TYPED_TEST_CASE(UdpIOTest, TestTypes);
 
 TYPED_TEST(UdpIOTest, Loop)
