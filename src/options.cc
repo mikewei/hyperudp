@@ -101,7 +101,7 @@ OptionsBuilder::OptionsBuilder()
   RxDupCacheSize(4000000);
   RxDupCacheTimeout(2000);
   // UdpIO options
-  UdpIOModule("reuse_port");
+  UdpIOModule("simple");
   // AllocChunk options
   ChunkAllocModule("simple");
 }
