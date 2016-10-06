@@ -2,11 +2,12 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
 	name = "hyperudp",
-	includes = ["include"],
+	includes = ["src"],
 	copts = [
 		"-g",
 		"-O2",
 		"-Wall",
+    "-Wno-unused-result",
 	],
 	linkopts = [
 		"-lrt",
@@ -14,8 +15,8 @@ cc_library(
 	nocopts = "-fPIC",
 	linkstatic = 1,
 	srcs = glob([
-		"src/*.cc",
-		"src/*.h",
+		"src/hyperudp/*.cc",
+		"src/hyperudp/*.h",
 	]),
 	deps = [
 		"//ccbase",
