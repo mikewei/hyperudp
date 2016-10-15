@@ -477,6 +477,7 @@ void HyperProto::OnFlushTxBuffer(Peer* peer,
 
     } else {
       assert(false);
+      return;
     }
 
     ptr += seg_len;

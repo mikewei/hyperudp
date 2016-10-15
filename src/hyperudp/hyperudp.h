@@ -62,7 +62,7 @@ public:
   /* Build the Options object
    * @num     number of worker threads
    *
-   * Build the Options object and return a unique_ptr point to it
+   * Build the Options object as Builder-Pattern
    *
    * @return  created Options object
    */
