@@ -68,7 +68,7 @@ public:
   // AllocChunk options
   std::string chunk_alloc_module;
 
-private:
+protected:
   // non-copy contruction is private
   friend class OptionsBuilder;
   Options() = default;
