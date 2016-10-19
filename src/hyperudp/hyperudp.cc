@@ -76,7 +76,7 @@ private:
 
 HyperUdp::Impl::Impl(const Options& opt)
   : env_(opt)
-  , udp_io_(GET_MODULE(UdpIO, env_.opt().udp_io_module, env_))
+  , udp_io_(HUDP_MODULE(UdpIO, env_.opt().udp_io_module, env_))
   , is_initialized_(false)
 {
 }
@@ -100,6 +100,7 @@ bool HyperUdp::Impl::Init(const Addr& addr, OnRecv& on_recv)
   for (size_t i = 0; i < worker_num; i++) {
     hyper_proto_.emplace_back(new HyperProto(env_));
     if (!hyper_proto_[i]->Init(on_udp_send, on_usr_recv)) {
+      hyper_proto_.clear();
       return false;
     }
   }

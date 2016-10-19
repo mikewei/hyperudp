@@ -34,13 +34,13 @@
 #include "ccbase/closure.h"
 #include "hyperudp/env.h"
 
-#define REGISTER_MODULE(type, name, func) \
+#define HUDP_REGISTER_MODULE(type, name, func) \
   static ModuleRegistry<type>::Registrar registrar_##type##_##name{ \
     #name, func \
   }
 
-#define GET_MODULE(type, name, ...) \
-  ModuleRegistry<type>::Get()->GetModule(name ,##__VA_ARGS__)
+#define HUDP_MODULE(type, name, ...) \
+  ::hudp::ModuleRegistry<::hudp::type>::Get()->GetModule(name ,##__VA_ARGS__)
 
 namespace hudp {
 

@@ -57,7 +57,7 @@ thread_local unsigned int Env::seed_tls = GetGlobalSeed();
 Env::Env(const Options& opt, ccb::TimerWheel* tw)
   : BaseEnv(opt)
   , timerw_(tw)
-  , alloc_(GET_MODULE(ChunkAlloc, BaseEnv::opt().chunk_alloc_module, *this))
+  , alloc_(HUDP_MODULE(ChunkAlloc, BaseEnv::opt().chunk_alloc_module, *this))
 {
   Log(kDebug, "initialized seed = %u", seed_tls);
 }

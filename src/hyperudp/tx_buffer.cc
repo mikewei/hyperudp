@@ -40,7 +40,7 @@ TxBuffer::TxBuffer(const Env& env, Peer* peer, const OnFlush& on_flush,
   , timerw_(nullptr)
   , flush_threshold_(flush_threshold ? flush_threshold
                      : MaxSegmentsSize(env.opt().max_udp_pkt_size))
-  , delay_algo_(GET_MODULE(TxDelayAlgo, env.opt().tx_delay_algo_module, env))
+  , delay_algo_(HUDP_MODULE(TxDelayAlgo, env.opt().tx_delay_algo_module, env))
   , segs_count_(0)
   , segs_len_(0)
   , cur_ack_seg_(nullptr)
