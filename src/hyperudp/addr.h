@@ -33,6 +33,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <string>
 #include <utility>
 
 namespace hudp {
@@ -40,6 +41,7 @@ namespace hudp {
 class Addr
 {
 public:
+  Addr() = default;
   Addr(const sockaddr_in& sa) 
     : sa_(sa) {}
   Addr(const char* ip, uint16_t port) {
