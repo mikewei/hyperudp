@@ -140,8 +140,8 @@ OptionsBuilder& OptionsBuilder::LogHandler(LogLevel lv,
 
 OptionsBuilder& OptionsBuilder::WorkerNumber(size_t num)
 {
-  if (num <= 0) {
-    throw std::invalid_argument("Invalid value!");
+  if (num <= 0 || num >= std::numeric_limits<uint16_t>::max()) {
+    throw std::invalid_argument("Invalid value! expect [1, 65535]");
   }
   opt_->worker_num = num;
   return *this;
