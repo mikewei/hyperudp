@@ -33,7 +33,8 @@
 #include <memory>
 #include <vector>
 #include <functional> 
-#include "ccbase/closure.h"
+#include <ccbase/closure.h>
+#include <ccbase/worker_group.h>
 #include "hyperudp/addr.h"
 #include "hyperudp/buf.h"
 
@@ -132,6 +133,9 @@ public:
   bool Init(uint16_t port, OnRecv on_recv);
   bool Init(const Addr& addr, OnRecv on_recv);
   void Send(const Buf& buf, const Addr& addr, OnSent done = nullptr);
+
+  // advanced APIs
+  ccb::WorkerGroup* GetWorkerGroup() const;
 
 private:
   // not copyable and movable

@@ -62,6 +62,10 @@ public:
 
   void Send(const Buf& buf, const Addr& addr, OnSent& done);
 
+  ccb::WorkerGroup* worker_group() const {
+    return workers_.get();
+  }
+
 private:
   void OnUdpRecv(const Buf& buf, const Addr& addr);
 
@@ -185,6 +189,11 @@ bool HyperUdp::Init(const Addr& addr, OnRecv on_recv)
 void HyperUdp::Send(const Buf& buf, const Addr& addr, OnSent done)
 {
   pimpl_->Send(buf, addr, done);
+}
+
+ccb::WorkerGroup* HyperUdp::GetWorkerGroup() const
+{
+  return pimpl_->worker_group();
 }
 
 } // namespace hudp
