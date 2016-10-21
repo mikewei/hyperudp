@@ -37,6 +37,7 @@ namespace hudp {
 class Options
 {
 public:
+  Options() = default;
   // Options is only copyable
   Options(const Options&) = default;
   Options& operator=(const Options&) = default;
@@ -67,11 +68,6 @@ public:
   std::string udp_io_module;
   // AllocChunk options
   std::string chunk_alloc_module;
-
-protected:
-  // non-copy contruction is private
-  friend class OptionsBuilder;
-  Options() = default;
 };
 
 }
