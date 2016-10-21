@@ -18,7 +18,7 @@ public:
   }
 };
 
-REGISTER_MODULE(FakeModule, impl_A, [](const Env& env) {
+HUDP_REGISTER_MODULE(FakeModule, impl_A, [](const Env& env) {
   return new FakeModuleImplA(env);
 });
 
@@ -32,8 +32,8 @@ using hudp::Env;
 TEST(ModuleRegistryTest, GetModule)
 {
   Env env{OptionsBuilder().Build()};
-  ASSERT_TRUE(GET_MODULE(FakeModule, "impl_A", env));
-  EXPECT_ANY_THROW(GET_MODULE(FakeModule, "impl_B", env));
+  ASSERT_TRUE(HUDP_MODULE(FakeModule, "impl_A", env));
+  EXPECT_ANY_THROW(HUDP_MODULE(FakeModule, "impl_B", env));
 }
 
 TEST(ModuleRegistryTest, IsModuleAvailable)

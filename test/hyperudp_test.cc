@@ -13,10 +13,10 @@ protected:
     : hyper_udp_(new HyperUdp(hudp::OptionsBuilder().Build())) {}
   virtual ~HyperUdpTest() {}
   virtual void SetUp() {
-    assert(hyper_udp_->Init(13579, 
+    ASSERT_TRUE(hyper_udp_->Init(13579, 
            [this](const Buf& buf, const Addr& addr) {
-             assert(buf.len() == sizeof(int));
-             assert(std::string(addr.str()) == "127.0.0.1:13579");
+             ASSERT_TRUE(buf.len() == sizeof(int));
+             ASSERT_TRUE(std::string(addr.str()) == "127.0.0.1:13579");
              counter_ -= *static_cast<const int*>(buf.ptr());
            }));
   }

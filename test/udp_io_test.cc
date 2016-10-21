@@ -37,9 +37,9 @@ TYPED_TEST(UdpIOTest, Loop)
 {
   hudp::Addr addr{"127.0.0.1", 13579};
   ASSERT_TRUE(this->udp_io_->Init(addr, [this](const hudp::Buf& buf, const hudp::Addr& addr) {
-    assert(buf.len() == sizeof(int));
-    assert(std::string(addr.str()) == "127.0.0.1:13579");
-    assert(addr.port() == 13579);
+    ASSERT_TRUE(buf.len() == sizeof(int));
+    ASSERT_TRUE(std::string(addr.str()) == "127.0.0.1:13579");
+    ASSERT_TRUE(addr.port() == 13579);
     this->counter_ -= *static_cast<const int*>(buf.ptr());
   }));
   int n = 100;

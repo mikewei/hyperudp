@@ -48,7 +48,7 @@ protected:
     });
     server_.Init([this](const Buf& buf, const Addr& addr) {
       s_env_.Log(hudp::kDebug, "--- send packet to client ---");
-      assert(c_recv_buf_len_ + sizeof(size_t) + buf.len() 
+      ASSERT_TRUE(c_recv_buf_len_ + sizeof(size_t) + buf.len() 
                                   <= sizeof(c_recv_buf_));
       *(size_t*)(c_recv_buf_ + c_recv_buf_len_) = buf.len();
       memcpy(c_recv_buf_ + c_recv_buf_len_ + sizeof(size_t), 
