@@ -55,12 +55,9 @@ public:
   Impl(const Options& opt);
   ~Impl();
 
-  bool Init(const Addr& addr, OnRecv& on_recv);
-  bool Init(uint16_t port, OnRecv& on_recv) {
-    return Init({"0.0.0.0", port}, on_recv);
-  }
+  bool Init(const Addr& addr, OnRecv on_recv, OnCtxSent on_ctx_sent);
 
-  void Send(const Buf& buf, const Addr& addr, OnSent& done);
+  void Send(const Buf& buf, const Addr& addr, void* ctx, OnSent done);
 
   ccb::WorkerGroup* worker_group() const {
     return workers_.get();
@@ -75,6 +72,7 @@ private:
   std::vector<std::unique_ptr<HyperProto>> hyper_proto_;
   std::unique_ptr<ccb::WorkerGroup> workers_;
   OnRecv on_recv_;
+  OnCtxSent on_ctx_sent_;
   bool is_initialized_;
 };
 
@@ -89,31 +87,34 @@ HyperUdp::Impl::~Impl()
 {
 }
 
-bool HyperUdp::Impl::Init(const Addr& addr, OnRecv& on_recv)
+bool HyperUdp::Impl::Init(const Addr& addr, OnRecv on_recv,
+                          OnCtxSent on_ctx_sent)
 {
   assert(!is_initialized_);
   on_recv_ = std::move(on_recv);
+  on_ctx_sent_ = std::move(on_ctx_sent);
   size_t worker_num = env_.opt().worker_num;
   // initialize HyperProto
-  auto on_udp_send = [this](const Buf& buf, const Addr& peer) {
-    udp_io_->Send(buf, peer);
-  };
-  auto on_usr_recv = [this](const Buf& buf, const Addr& peer) {
-    if (on_recv_) on_recv_(buf, peer);
+  HyperProto::OnUdpSend on_udp_send {
+    [this](const Buf& buf, const Addr& peer) {
+      if (!udp_io_->Send(buf, peer)) {
+        WLOG("UdpIO::Send failed!");
+      }
+    }
   };
   for (size_t i = 0; i < worker_num; i++) {
     hyper_proto_.emplace_back(new HyperProto(env_));
-    if (!hyper_proto_[i]->Init(on_udp_send, on_usr_recv)) {
+    if (!hyper_proto_[i]->Init(on_udp_send, on_recv_, on_ctx_sent_)) {
       hyper_proto_.clear();
       return false;
     }
   }
   // initialize WorkerGroup
-  workers_.reset(new ccb::WorkerGroup(worker_num, env_.opt().worker_queue_size));
+  workers_.reset(new ccb::WorkerGroup(worker_num,
+                                      env_.opt().worker_queue_size));
   // initialize UdpIO
-  if (!udp_io_->Init(addr, [this](const Buf& buf, const Addr& peer) {
-    this->OnUdpRecv(buf, peer);
-  })) {
+  if (!udp_io_->Init(addr, ccb::BindClosure(this,
+                                            &HyperUdp::Impl::OnUdpRecv))) {
     // rollback
     workers_.reset();
     hyper_proto_.clear();
@@ -141,11 +142,13 @@ void HyperUdp::Impl::OnUdpRecv(const Buf& buf, const Addr& addr)
   }
 }
 
-void HyperUdp::Impl::Send(const Buf& buf, const Addr& addr, OnSent& done)
+void HyperUdp::Impl::Send(const Buf& buf, const Addr& addr,
+                          void* ctx, OnSent done)
 {
   assert(is_initialized_);
   size_t wid = Hash(addr, workers_->size());
-  TxRequest* req = hyper_proto_[wid]->NewTxRequest(buf, addr, std::move(done));
+  TxRequest* req = hyper_proto_[wid]->NewTxRequest(buf, addr, ctx,
+                                                   std::move(done));
   if (!req) {
     WLOG("NewTxRequest failed");
     return;
@@ -176,19 +179,29 @@ HyperUdp::~HyperUdp()
 {
 }
 
-bool HyperUdp::Init(uint16_t port, OnRecv on_recv)
-{
-  return pimpl_->Init(port, on_recv);
-}
-
 bool HyperUdp::Init(const Addr& addr, OnRecv on_recv)
 {
-  return pimpl_->Init(addr, on_recv);
+  return pimpl_->Init(addr, std::move(on_recv), nullptr);
+}
+
+bool HyperUdp::Init(const Addr& addr, OnRecv on_recv, OnCtxSent on_ctx_sent)
+{
+  return pimpl_->Init(addr, std::move(on_recv), std::move(on_ctx_sent));
+}
+
+void HyperUdp::Send(const Buf& buf, const Addr& addr)
+{
+  pimpl_->Send(buf, addr, nullptr, nullptr);
 }
 
 void HyperUdp::Send(const Buf& buf, const Addr& addr, OnSent done)
 {
-  pimpl_->Send(buf, addr, done);
+  pimpl_->Send(buf, addr, nullptr, std::move(done));
+}
+
+void HyperUdp::Send(const Buf& buf, const Addr& addr, void* ctx)
+{
+  pimpl_->Send(buf, addr, ctx, nullptr);
 }
 
 ccb::WorkerGroup* HyperUdp::GetWorkerGroup() const

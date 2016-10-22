@@ -45,7 +45,7 @@ protected:
     }, [this](const Buf& buf, const Addr& addr) {
       c_env_.Log(hudp::kDebug, "--- recv echo response ---");
       pending_count_--;
-    });
+    }, nullptr);
     server_.Init([this](const Buf& buf, const Addr& addr) {
       s_env_.Log(hudp::kDebug, "--- send packet to client ---");
       ASSERT_TRUE(c_recv_buf_len_ + sizeof(size_t) + buf.len() 
@@ -56,8 +56,8 @@ protected:
       c_recv_buf_len_ += sizeof(size_t) + buf.len();
     }, [this](const Buf& buf, const Addr& addr) {
       s_env_.Log(hudp::kDebug, "--- recv echo request and send reponse ---");
-      server_.OnUsrSend(buf, addr, [](Result){});
-    });
+      server_.OnUsrSend(buf, addr, nullptr, nullptr);
+    }, nullptr);
   }
 
   virtual void TearDown() {}
@@ -79,7 +79,7 @@ PERF_TEST_P(HyperProtoTest, SmallPacket)
   static uint8_t pkt_data[100];
   static Addr addr{"127.0.0.1", 9999};
   pending_count_++;
-  client_.OnUsrSend({pkt_data, sizeof(pkt_data)}, addr, [](Result){});
+  client_.OnUsrSend({pkt_data, sizeof(pkt_data)}, addr, nullptr, nullptr);
   ASSERT_LT(pending_count_, 100) << PERF_ABORT;
   for (size_t n = 0; n < c_recv_buf_len_; ) {
     size_t len = *(size_t*)(c_recv_buf_ + n);
@@ -95,7 +95,7 @@ PERF_TEST_P(HyperProtoTest, BigPacket)
   static uint8_t pkt_data[2000];
   static Addr addr{"127.0.0.1", 9999};
   pending_count_++;
-  client_.OnUsrSend({pkt_data, sizeof(pkt_data)}, addr, [](Result){});
+  client_.OnUsrSend({pkt_data, sizeof(pkt_data)}, addr, nullptr, nullptr);
   ASSERT_LT(pending_count_, 100) << PERF_ABORT;
   for (size_t n = 0; n < c_recv_buf_len_; ) {
     size_t len = *(size_t*)(c_recv_buf_ + n);

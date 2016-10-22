@@ -123,16 +123,19 @@ private:
 class HyperUdp
 {
 public:
-  using OnSent = ccb::ClosureFunc<void(Result)>;
   using OnRecv = ccb::ClosureFunc<void(const Buf&, const Addr&)>;
+  using OnSent = ccb::ClosureFunc<void(Result)>;
+  using OnCtxSent = ccb::ClosureFunc<void(Result, void* ctx)>;
 
   HyperUdp();
   HyperUdp(const Options& opt);
   virtual ~HyperUdp();
 
-  bool Init(uint16_t port, OnRecv on_recv);
   bool Init(const Addr& addr, OnRecv on_recv);
-  void Send(const Buf& buf, const Addr& addr, OnSent done = nullptr);
+  bool Init(const Addr& addr, OnRecv on_recv, OnCtxSent on_ctx_sent);
+  void Send(const Buf& buf, const Addr& addr);
+  void Send(const Buf& buf, const Addr& addr, OnSent done);
+  void Send(const Buf& buf, const Addr& addr, void* ctx);
 
   // advanced APIs
   ccb::WorkerGroup* GetWorkerGroup() const;

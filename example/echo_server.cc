@@ -23,7 +23,7 @@ void StartEchoServer()
 
   std::atomic<size_t> recv_count{0};
   std::atomic<size_t> fail_count{0};
-  hyper_udp.Init(19933, [&](const Buf& buf, const Addr& addr) {
+  hyper_udp.Init({"0.0.0.0", 19933}, [&](const Buf& buf, const Addr& addr) {
     recv_count++;
     if (FLAGS_echo) {
       hyper_udp.Send(buf, addr, [&](Result res) {

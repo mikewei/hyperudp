@@ -49,6 +49,7 @@ struct TxRequest
   uint16_t port;
   uint16_t ref_count;
   Peer* peer;
+  void* ctx;
   HyperUdp::OnSent on_sent;
   uint8_t data[0];
 };

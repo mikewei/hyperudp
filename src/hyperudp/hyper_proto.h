@@ -49,15 +49,17 @@ public:
   using OnUdpSend = ccb::ClosureFunc<void(const Buf&, const Addr&)>;
   using OnUsrRecv = HyperUdp::OnRecv;
   using OnUsrSent = HyperUdp::OnSent;
+  using OnUsrCtxSent = HyperUdp::OnCtxSent;
 
   HyperProto(const Env& env);
   virtual ~HyperProto();
 
-  bool Init(OnUdpSend on_send, OnUsrRecv on_recv);
+  bool Init(OnUdpSend on_send, OnUsrRecv on_recv, OnUsrCtxSent on_ctx_sent);
   void OnUdpRecv(const Buf& buf, const Addr& addr);
-  void OnUsrSend(const Buf& buf, const Addr& addr, OnUsrSent done);
+  void OnUsrSend(const Buf& buf, const Addr& addr, void* ctx, OnUsrSent done);
 
-  TxRequest* NewTxRequest(const Buf& buf, const Addr& addr, OnUsrSent done);
+  TxRequest* NewTxRequest(const Buf& buf, const Addr& addr,
+                          void* ctx, OnUsrSent done);
   void StartTxRequest(TxRequest* req);
   void DelTxRequest(TxRequest* req, bool done = true);
 
@@ -100,6 +102,7 @@ private:
   std::unique_ptr<RxDupCache> rx_dup_cache_;
   OnUdpSend on_udp_send_;
   OnUsrRecv on_usr_recv_;
+  OnUsrCtxSent on_usr_ctx_sent_;
   uint32_t proc_sess_id_;
 };
 

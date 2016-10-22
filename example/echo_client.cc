@@ -25,8 +25,8 @@ void StartEchoClient()
     }).Build()
   };
 
-  if (!hyper_udp.Init(FLAGS_port, [](const Buf& buf, const Addr& addr) {
-  })) {
+  if (!hyper_udp.Init({"0.0.0.0", static_cast<uint16_t>(FLAGS_port)},
+                      [](const Buf& buf, const Addr& addr) {})) {
     fprintf(stderr, "init failed!\n");
     return;
   }

@@ -61,7 +61,8 @@ HyperProto::~HyperProto()
 {
 }
 
-bool HyperProto::Init(OnUdpSend on_send, OnUsrRecv on_recv)
+bool HyperProto::Init(OnUdpSend on_send, OnUsrRecv on_recv,
+                      OnUsrCtxSent on_ctx_sent)
 {
   using ccb::BindClosure;
   const Options& opt = env_.opt();
@@ -92,6 +93,7 @@ bool HyperProto::Init(OnUdpSend on_send, OnUsrRecv on_recv)
 
   on_udp_send_ = std::move(on_send);
   on_usr_recv_ = std::move(on_recv);
+  on_usr_ctx_sent_ = std::move(on_ctx_sent);
   // init PeerManager
   peer_mgr_.reset(new PeerManager(env_, 
                       BindClosure(this, &HyperProto::OnFlushTxBuffer)));
@@ -101,7 +103,6 @@ bool HyperProto::Init(OnUdpSend on_send, OnUsrRecv on_recv)
 
 void HyperProto::OnUdpRecv(const Buf& buf, const Addr& addr)
 {
-  //on_usr_recv_(buf, addr);
   RxRequest* req = NewRxRequest(buf, addr);
   if (!req) {
     WLOG("OnUdpRecv: NewRxRequest failed!");
@@ -110,10 +111,10 @@ void HyperProto::OnUdpRecv(const Buf& buf, const Addr& addr)
   StartRxRequest(req);
 }
 
-void HyperProto::OnUsrSend(const Buf& buf, const Addr& addr, OnUsrSent done)
+void HyperProto::OnUsrSend(const Buf& buf, const Addr& addr,
+                           void* ctx, OnUsrSent done)
 {
-  //on_udp_send_(buf, addr);
-  TxRequest* req = NewTxRequest(buf, addr, std::move(done));
+  TxRequest* req = NewTxRequest(buf, addr, ctx, std::move(done));
   if (!req) {
     WLOG("NewTxRequest failed!");
     return;
@@ -122,7 +123,7 @@ void HyperProto::OnUsrSend(const Buf& buf, const Addr& addr, OnUsrSent done)
 }
 
 TxRequest* HyperProto::NewTxRequest(const Buf& buf, const Addr& addr, 
-                                    OnUsrSent done)
+                                    void* ctx, OnUsrSent done)
 {
   size_t req_size = sizeof(TxRequest) + buf.len();
   TxRequest* req = static_cast<TxRequest*>(env_.alloc().Alloc(req_size));
@@ -134,6 +135,7 @@ TxRequest* HyperProto::NewTxRequest(const Buf& buf, const Addr& addr,
   req->ip = addr.ip();
   req->port = addr.port();
   req->ref_count = 0;
+  req->ctx = ctx;
   new (&req->on_sent) OnUsrSent(std::move(done));
   memcpy(req->data, buf.ptr(), buf.len());
   DLOG("NewTxRequest data_len:%lu", buf.len());
@@ -148,6 +150,7 @@ void HyperProto::StartTxRequest(TxRequest* req)
   req->peer = peer_mgr_->GetPeer({req->ip, req->port});
   if (!tx_sess_mgr_->AddSession(req)) {
     if (req->on_sent) req->on_sent(R_ERROR);
+    else if (on_usr_ctx_sent_) on_usr_ctx_sent_(R_ERROR, req->ctx);
     if (!--req->ref_count) DelTxRequest(req);
     WLOG("AddSession failed!");
     return;
@@ -156,7 +159,10 @@ void HyperProto::StartTxRequest(TxRequest* req)
 
 void HyperProto::DelTxRequest(TxRequest* req, bool done)
 {
-  if (!done && req->on_sent) req->on_sent(R_ERROR);
+  if (!done) {
+    if (req->on_sent) req->on_sent(R_ERROR);
+    else if (on_usr_ctx_sent_) on_usr_ctx_sent_(R_ERROR, req->ctx);
+  }
   req->on_sent.~OnUsrSent();
   env_.alloc().Free(req, req->size);
 }
@@ -204,6 +210,8 @@ void HyperProto::OnTxSessSendFrag(TxRequest* req,
 void HyperProto::OnTxSessDone(TxRequest* req, Result res)
 {
   if (req->on_sent) req->on_sent(res);
+  else if (on_usr_ctx_sent_) on_usr_ctx_sent_(res, req->ctx);
+
   if (!--req->ref_count) {
     DelTxRequest(req);
   }
@@ -253,7 +261,7 @@ void HyperProto::ParseRxPacket(const Buf& buf, const Addr& addr,
       if (frag_count == 1) {
         // single-frag DATA segment
         if (!rx_dup_cache_->CheckDup(req->peer, proc_sess_id, seq)) {
-          on_usr_recv_({data_seg->data, data_len}, addr);
+          if (on_usr_recv_) on_usr_recv_({data_seg->data, data_len}, addr);
         } else {
           ILOG("dup DATA seg len:%lu id:(-, %u, %u, 1, 0)",
                               data_len, proc_sess_id, seq);
@@ -404,7 +412,7 @@ void HyperProto::OnRxFragCacheComplete(const Addr& addr,
     if (!rx_dup_cache_->CheckDup(peer, proc_sess_id, seq)) {
       DLOG("recv complete multi-frags DATA seg len:%lu id:(-, %u, %u, %hu, -)",
                                     pkt.size(), proc_sess_id, seq, frag_count);
-      on_usr_recv_({pkt.data(), pkt.size()}, addr);
+      if (on_usr_recv_) on_usr_recv_({pkt.data(), pkt.size()}, addr);
     } else {
       ILOG("dup multi-frags DATA seg len:%lu id:(-, %u, %u, %hu, -)",
                           pkt.size(), proc_sess_id, seq, frag_count);
