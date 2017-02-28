@@ -29,6 +29,7 @@
  */
 #include <sys/time.h>
 #include <assert.h>
+#include <atomic>
 #include "ccbase/worker_group.h"
 #include "hyperudp/hyperudp.h"
 #include "hyperudp/options.h"
@@ -73,7 +74,7 @@ private:
   std::unique_ptr<ccb::WorkerGroup> workers_;
   OnRecv on_recv_;
   OnCtxSent on_ctx_sent_;
-  bool is_initialized_;
+  std::atomic<bool> is_initialized_;
 };
 
 HyperUdp::Impl::Impl(const Options& opt)
