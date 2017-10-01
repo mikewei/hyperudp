@@ -43,9 +43,11 @@ class SimpleUdpIO : public UdpIO
 {
 public:
   SimpleUdpIO(const Env& env);
-  virtual ~SimpleUdpIO() override;
-  virtual bool Init(const Addr& listen_addr, OnRecv on_recv) override;
-  virtual bool Send(const Buf& buf, const Addr& addr) override;
+  ~SimpleUdpIO() override;
+  bool Init(const Addr& listen_addr, OnRecv on_recv) override;
+  bool Send(const Buf& buf, const Addr& addr) override;
+  void Cleanup() override;
+
 private:
   const Env& env_;
   int sock_ = -1;

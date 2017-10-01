@@ -42,6 +42,7 @@ public:
   ~ThreadContext();
   bool Init(const Addr& listen_addr);
   bool Send(const Buf& buf, const Addr& addr);
+  void Cleanup();
 
 private:
   const Env& env_;
@@ -53,10 +54,7 @@ private:
 
 ReusePortUdpIO::ThreadContext::~ThreadContext()
 {
-  if (!stop_) {
-    stop_ = true;
-    thread_.join();
-  }
+  Cleanup();
 }
 
 bool ReusePortUdpIO::ThreadContext::Init(const Addr& listen_addr)
@@ -128,6 +126,13 @@ bool ReusePortUdpIO::ThreadContext::Send(const Buf& buf, const Addr& addr)
   return r >= 0;
 }
 
+void ReusePortUdpIO::ThreadContext::Cleanup()
+{
+  if (!stop_.exchange(true)) {
+    thread_.join();
+  }
+}
+
 // class ReusePortUdpIO
 
 std::atomic<size_t> ReusePortUdpIO::cur_thread_index_s{0};
@@ -164,6 +169,13 @@ bool ReusePortUdpIO::Send(const Buf& buf, const Addr& addr)
   static thread_local size_t thread_index = cur_thread_index_s++;
   size_t ctx_idx = thread_index % ctx_vec_.size();
   return ctx_vec_[ctx_idx]->Send(buf, addr);
+}
+
+void ReusePortUdpIO::Cleanup()
+{
+  for (auto& ctx : ctx_vec_) {
+    ctx->Cleanup();
+  }
 }
 
 } // namespace hudp

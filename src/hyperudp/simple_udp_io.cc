@@ -38,10 +38,7 @@ SimpleUdpIO::SimpleUdpIO(const Env& env)
 
 SimpleUdpIO::~SimpleUdpIO()
 {
-  if (!stop_) {
-    stop_ = true;
-    thread_.join();
-  }
+  Cleanup();
 }
 
 bool SimpleUdpIO::Init(const Addr& listen_addr, OnRecv on_recv)
@@ -79,6 +76,13 @@ bool SimpleUdpIO::Send(const Buf& buf, const Addr& addr)
   int r = sendto(sock_, buf.ptr(), buf.len(), MSG_DONTWAIT, 
                  addr.sockaddr_ptr(), addr.sockaddr_len());
   return r >= 0;
+}
+
+void SimpleUdpIO::Cleanup()
+{
+  if (!stop_.exchange(true)) {
+    thread_.join();
+  }
 }
 
 }

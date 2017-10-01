@@ -44,6 +44,7 @@ public:
   virtual ~UdpIO() {}
   virtual bool Init(const Addr& listen_addr, OnRecv on_recv) = 0;
   virtual bool Send(const Buf& buf, const Addr& addr) = 0;
+  virtual void Cleanup() = 0;
 };
 
 }

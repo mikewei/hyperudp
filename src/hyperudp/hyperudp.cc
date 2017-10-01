@@ -86,6 +86,9 @@ HyperUdp::Impl::Impl(const Options& opt)
 
 HyperUdp::Impl::~Impl()
 {
+  // graceful destruction order:
+  // udp-io cleanup -> worker-group dtor -> hyper-proto dtor -> udp-io dtor
+  udp_io_->Cleanup();
 }
 
 bool HyperUdp::Impl::Init(const Addr& addr, OnRecv on_recv,

@@ -45,9 +45,10 @@ class ReusePortUdpIO : public UdpIO
 {
 public:
   ReusePortUdpIO(const Env& env);
-  virtual ~ReusePortUdpIO() override;
-  virtual bool Init(const Addr& listen_addr, OnRecv on_recv) override;
-  virtual bool Send(const Buf& buf, const Addr& addr) override;
+  ~ReusePortUdpIO() override;
+  bool Init(const Addr& listen_addr, OnRecv on_recv) override;
+  bool Send(const Buf& buf, const Addr& addr) override;
+  void Cleanup() override;
 
 private:
   class ThreadContext;
