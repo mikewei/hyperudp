@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -33,8 +33,7 @@
 
 namespace hudp {
 
-bool RxDupCache::Init(bool enable, size_t htable_size, uint32_t timeout)
-{
+bool RxDupCache::Init(bool enable, size_t htable_size, uint32_t timeout) {
   if (!enable) {
     DLOG("RxDupCache: is disabled");
     return true;
@@ -48,8 +47,7 @@ bool RxDupCache::Init(bool enable, size_t htable_size, uint32_t timeout)
   return true;
 }
 
-bool RxDupCache::CheckDup(Peer* peer, uint32_t proc_sess_id, uint32_t seq)
-{
+bool RxDupCache::CheckDup(Peer* peer, uint32_t proc_sess_id, uint32_t seq) {
   if (!enabled_) {
     // all packets are not dup
     return false;
@@ -99,5 +97,5 @@ bool RxDupCache::CheckDup(Peer* peer, uint32_t proc_sess_id, uint32_t seq)
 }
 
 
-} // namespace hudp
+}  // namespace hudp
 

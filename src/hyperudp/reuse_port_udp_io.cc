@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -34,9 +34,8 @@
 
 namespace hudp {
 
-class ReusePortUdpIO::ThreadContext
-{
-public:
+class ReusePortUdpIO::ThreadContext {
+ public:
   ThreadContext(const Env& env, const OnRecv& on_recv)
     : env_(env), on_recv_(on_recv) {}
   ~ThreadContext();
@@ -44,7 +43,7 @@ public:
   bool Send(const Buf& buf, const Addr& addr);
   void Cleanup();
 
-private:
+ private:
   const Env& env_;
   const OnRecv& on_recv_;
   int sock_ = -1;
@@ -52,13 +51,11 @@ private:
   std::thread thread_; 
 };
 
-ReusePortUdpIO::ThreadContext::~ThreadContext()
-{
+ReusePortUdpIO::ThreadContext::~ThreadContext() {
   Cleanup();
 }
 
-bool ReusePortUdpIO::ThreadContext::Init(const Addr& listen_addr)
-{
+bool ReusePortUdpIO::ThreadContext::Init(const Addr& listen_addr) {
   if (sock_ >= 0) {
     ELOG("socket has been initialized!");
     return false;
@@ -119,15 +116,13 @@ bool ReusePortUdpIO::ThreadContext::Init(const Addr& listen_addr)
   return true;
 }
 
-bool ReusePortUdpIO::ThreadContext::Send(const Buf& buf, const Addr& addr)
-{
+bool ReusePortUdpIO::ThreadContext::Send(const Buf& buf, const Addr& addr) {
   int r = sendto(sock_, buf.ptr(), buf.len(), MSG_DONTWAIT, 
                  addr.sockaddr_ptr(), addr.sockaddr_len());
   return r >= 0;
 }
 
-void ReusePortUdpIO::ThreadContext::Cleanup()
-{
+void ReusePortUdpIO::ThreadContext::Cleanup() {
   if (!stop_.exchange(true)) {
     thread_.join();
   }
@@ -138,18 +133,15 @@ void ReusePortUdpIO::ThreadContext::Cleanup()
 std::atomic<size_t> ReusePortUdpIO::cur_thread_index_s{0};
 
 ReusePortUdpIO::ReusePortUdpIO(const Env& env)
-  : env_(env)
-{
+  : env_(env) {
 }
 
-ReusePortUdpIO::~ReusePortUdpIO()
-{
+ReusePortUdpIO::~ReusePortUdpIO() {
   // destruct all threads before member destructed
   ctx_vec_.clear();
 }
 
-bool ReusePortUdpIO::Init(const Addr& listen_addr, OnRecv on_recv)
-{
+bool ReusePortUdpIO::Init(const Addr& listen_addr, OnRecv on_recv) {
   on_recv_ = std::move(on_recv);
 
   size_t thread_num = env_.opt().worker_num;
@@ -164,18 +156,16 @@ bool ReusePortUdpIO::Init(const Addr& listen_addr, OnRecv on_recv)
   return true;
 }
 
-bool ReusePortUdpIO::Send(const Buf& buf, const Addr& addr)
-{
+bool ReusePortUdpIO::Send(const Buf& buf, const Addr& addr) {
   static thread_local size_t thread_index = cur_thread_index_s++;
   size_t ctx_idx = thread_index % ctx_vec_.size();
   return ctx_vec_[ctx_idx]->Send(buf, addr);
 }
 
-void ReusePortUdpIO::Cleanup()
-{
+void ReusePortUdpIO::Cleanup() {
   for (auto& ctx : ctx_vec_) {
     ctx->Cleanup();
   }
 }
 
-} // namespace hudp
+}  // namespace hudp

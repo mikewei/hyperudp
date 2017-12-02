@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -32,17 +32,14 @@
 namespace hudp {
 
 SimpleUdpIO::SimpleUdpIO(const Env& env)
-  : env_(env)
-{
+  : env_(env) {
 }
 
-SimpleUdpIO::~SimpleUdpIO()
-{
+SimpleUdpIO::~SimpleUdpIO() {
   Cleanup();
 }
 
-bool SimpleUdpIO::Init(const Addr& listen_addr, OnRecv on_recv)
-{
+bool SimpleUdpIO::Init(const Addr& listen_addr, OnRecv on_recv) {
   if (sock_ >= 0)
     return false;
   if ((sock_ = socket(PF_INET, SOCK_DGRAM, 0)) < 0)
@@ -71,15 +68,13 @@ bool SimpleUdpIO::Init(const Addr& listen_addr, OnRecv on_recv)
   return true;
 }
 
-bool SimpleUdpIO::Send(const Buf& buf, const Addr& addr)
-{
+bool SimpleUdpIO::Send(const Buf& buf, const Addr& addr) {
   int r = sendto(sock_, buf.ptr(), buf.len(), MSG_DONTWAIT, 
                  addr.sockaddr_ptr(), addr.sockaddr_len());
   return r >= 0;
 }
 
-void SimpleUdpIO::Cleanup()
-{
+void SimpleUdpIO::Cleanup() {
   if (!stop_.exchange(true)) {
     thread_.join();
   }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,8 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_FRAG_CACHE_H
-#define _HUDP_FRAG_CACHE_H
+#ifndef HUDP_FRAG_CACHE_H_
+#define HUDP_FRAG_CACHE_H_
 
 #include <vector>
 #include "ccbase/worker_group.h"
@@ -41,9 +41,8 @@
 
 namespace hudp {
 
-class RxFragCache
-{
-public:
+class RxFragCache {
+ public:
   using OnComplete = ccb::ClosureFunc<void(const Addr& addr,
                                            uint32_t proc_sess_id,
                                            uint32_t seq,
@@ -61,7 +60,7 @@ public:
   bool AddFrag(const Addr& addr, uint32_t proc_sess_id, uint32_t seq,
                uint16_t frag_count, uint16_t frag_index, void* frag);
 
-private:
+ private:
   struct Node;
   void DeleteNode(Node* node);
   void OnNodeTimeout(Node* node);
@@ -72,7 +71,7 @@ private:
     return timerw_;
   }
 
-public:
+ public:
   struct NodeKey {
     uint32_t proc_sess_id;
     uint32_t seq;
@@ -87,7 +86,7 @@ public:
     }
   };
 
-private:
+ private:
   struct Node {
     NodeKey         key;
     uint16_t        frag_count;
@@ -108,13 +107,12 @@ private:
   ccb::TimerWheel* timerw_;
 };
 
-} // namespace hudp
+}  // namespace hudp
 
 namespace std {
 
 template <>
-struct hash<hudp::RxFragCache::NodeKey>
-{
+struct hash<hudp::RxFragCache::NodeKey> {
   std::size_t operator()(const hudp::RxFragCache::NodeKey& key) const {
     return (key.ip + ((size_t)key.port << 16UL)
                    + ((size_t)key.seq << 32UL)
@@ -122,6 +120,6 @@ struct hash<hudp::RxFragCache::NodeKey>
   }
 };
 
-} // namespace std
+}  // namespace std
 
-#endif // _HUDP_FRAG_CACHE_H
+#endif  // HUDP_FRAG_CACHE_H_

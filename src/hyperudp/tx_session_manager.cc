@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -53,8 +53,7 @@ bool TxSessionManager::Init(size_t sess_num,
   return true;
 }
 
-bool TxSessionManager::AddSessionConst(const TxRequest* req)
-{
+bool TxSessionManager::AddSessionConst(const TxRequest* req) {
   uint32_t seq = req->peer->next_seq();
   uint32_t base_seq = seq & ~0x3fU;
   uint32_t seq_index = seq & 0x3fU;
@@ -146,8 +145,7 @@ bool TxSessionManager::AddSessionConst(const TxRequest* req)
 }
 
 bool TxSessionManager::AckSession(Peer* peer, uint32_t seq,
-                                  uint16_t frag_count, uint16_t frag_index)
-{
+                                  uint16_t frag_count, uint16_t frag_index) {
   uint32_t base_seq = seq & ~0x3fU;
   uint32_t seq_index = seq & 0x3fU;
   NodeKey key = {peer->addr().ip(), peer->addr().port(), base_seq};
@@ -209,8 +207,7 @@ bool TxSessionManager::AckSession(Peer* peer, uint32_t seq,
   return true;
 }
 
-void TxSessionManager::DelSession(Node* node, uint32_t seq_index)
-{
+void TxSessionManager::DelSession(Node* node, uint32_t seq_index) {
   Session* sess = &node->sessions[seq_index];
   sess->timer_owner.Cancel();
   if (sess->frag_bitmap) {
@@ -221,8 +218,7 @@ void TxSessionManager::DelSession(Node* node, uint32_t seq_index)
   node->inuse_bitmap &= ~(1UL << seq_index);
 }
 
-void TxSessionManager::OnRetransTimer(Node* node, uint32_t seq_index)
-{
+void TxSessionManager::OnRetransTimer(Node* node, uint32_t seq_index) {
   assert(node && (node->inuse_bitmap & (1UL << seq_index)));
   Session* sess = &node->sessions[seq_index];
   uint32_t seq = node->key.base_seq + seq_index;
@@ -267,5 +263,5 @@ void TxSessionManager::OnRetransTimer(Node* node, uint32_t seq_index)
   }
 }
 
-} // namespace hudp
+}  // namespace hudp
 

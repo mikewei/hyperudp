@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,17 +27,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_MAX_TX_DELAY_ALGO_H
-#define _HUDP_MAX_TX_DELAY_ALGO_H
+#ifndef HUDP_MAX_TX_DELAY_ALGO_H_
+#define HUDP_MAX_TX_DELAY_ALGO_H_
 
 #include "hyperudp/tx_delay_algo.h"
 #include "hyperudp/env.h"
 
 namespace hudp {
 
-class MaxTxDelayAlgo : public TxDelayAlgo
-{
-public:
+class MaxTxDelayAlgo : public TxDelayAlgo {
+ public:
   MaxTxDelayAlgo(const Env& env)
     : env_(env), max_delay_(env.opt().max_tx_delay) {}
 
@@ -51,11 +50,12 @@ public:
       return {kNoOp, 0};
     }
   }
-protected:
+
+ protected:
   const Env& env_;
   size_t max_delay_;
 };
 
-} // namespace hudp
+}  // namespace hudp
 
-#endif // _HUDP_MAX_TX_DELAY_ALGO_H
+#endif  // HUDP_MAX_TX_DELAY_ALGO_H_

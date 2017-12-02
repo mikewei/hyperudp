@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,8 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_HYPERUDP_H
-#define _HUDP_HYPERUDP_H
+#ifndef HUDP_HYPERUDP_H_
+#define HUDP_HYPERUDP_H_
 
 #include <memory>
 #include <vector>
@@ -54,9 +54,8 @@ enum Result {
 
 class Options;
 
-class OptionsBuilder
-{
-public:
+class OptionsBuilder {
+ public:
   OptionsBuilder();
   ~OptionsBuilder();
 
@@ -110,7 +109,7 @@ public:
   OptionsBuilder& UdpIOModule(std::string name);
   OptionsBuilder& ChunkAllocModule(std::string name);
 
-private:
+ private:
   // not copyable and movable
   OptionsBuilder(const OptionsBuilder&) = delete;
   OptionsBuilder& operator=(const OptionsBuilder&) = delete;
@@ -120,9 +119,8 @@ private:
   std::unique_ptr<Options> opt_;
 };
 
-class HyperUdp
-{
-public:
+class HyperUdp {
+ public:
   using OnRecv = ccb::ClosureFunc<void(const Buf&, const Addr&)>;
   using OnSent = ccb::ClosureFunc<void(Result)>;
   using OnCtxSent = ccb::ClosureFunc<void(Result, void* ctx)>;
@@ -140,7 +138,7 @@ public:
   // advanced APIs
   ccb::WorkerGroup* GetWorkerGroup() const;
 
-private:
+ private:
   // not copyable and movable
   HyperUdp(const HyperUdp&) = delete;
   HyperUdp& operator=(const HyperUdp&) = delete;
@@ -151,8 +149,8 @@ private:
   std::unique_ptr<HyperUdp::Impl> pimpl_;
 };
 
-} // namespace hudp
+}  // namespace hudp
 
 #include "hyperudp/options.h"
 
-#endif // _HUDP_HYPERUDP_H
+#endif  // HUDP_HYPERUDP_H_

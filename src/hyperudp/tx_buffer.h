@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,8 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_TX_BUFFER_H
-#define _HUDP_TX_BUFFER_H
+#ifndef HUDP_TX_BUFFER_H_
+#define HUDP_TX_BUFFER_H_
 
 #include "ccbase/timer_wheel.h"
 #include "ccbase/worker_group.h"
@@ -42,8 +42,7 @@ namespace hudp {
 class Peer;
 class TxRequest;
 
-struct DataSegDesc
-{
+struct DataSegDesc {
   uint32_t seq;
   uint16_t frag_count;
   uint16_t frag_index;
@@ -52,15 +51,13 @@ struct DataSegDesc
   TxRequest* req;
 };
 
-struct AckSegDesc
-{
+struct AckSegDesc {
   uint32_t proc_sess_id;
   uint32_t base_seq;
   uint32_t seq_bitmap;
 };
 
-struct FragAckSegDesc
-{
+struct FragAckSegDesc {
   uint32_t proc_sess_id;
   uint32_t seq;
   uint16_t frag_count;
@@ -68,8 +65,7 @@ struct FragAckSegDesc
   uint32_t frag_bitmap;
 };
 
-struct SegDesc
-{
+struct SegDesc {
   SegmentType type;
   union {
     DataSegDesc data;
@@ -78,9 +74,8 @@ struct SegDesc
   } val;
 };
 
-class TxBuffer
-{
-public:
+class TxBuffer {
+ public:
   using OnFlush = ccb::ClosureFunc<void(Peer*, const SegDesc*, size_t)>;
 
   TxBuffer(const Env& env, Peer* peer, const OnFlush& on_flush,
@@ -92,7 +87,7 @@ public:
   void AddAck(uint32_t proc_sess_id, uint32_t seq, 
               uint32_t frag_count, uint32_t frag_index);
 
-private:
+ private:
   ccb::TimerWheel* timerw() {
     if (!timerw_) {
       timerw_ = env_.timerw();
@@ -103,7 +98,7 @@ private:
   void OnBufTimeout();
   void Flush();
 
-private:
+ private:
   const Env& env_;
   Peer* peer_;
   OnFlush on_flush_;
@@ -120,4 +115,4 @@ private:
 
 }
 
-#endif // _HUDP_TX_BUFFER_H
+#endif  // HUDP_TX_BUFFER_H_

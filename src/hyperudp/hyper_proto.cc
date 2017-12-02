@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -38,8 +38,7 @@
 
 namespace hudp {
 
-struct RxRequest
-{
+struct RxRequest {
   uint32_t size;
   Addr addr;
   Buf frag_buf;
@@ -53,17 +52,14 @@ HyperProto::HyperProto(const Env& env)
   , tx_sess_mgr_(new TxSessionManager(env))
   , frag_cache_(new RxFragCache(env))
   , rx_dup_cache_(new RxDupCache(env))
-  , proc_sess_id_(env_.Rand())
-{
+  , proc_sess_id_(env_.Rand()) {
 }
 
-HyperProto::~HyperProto()
-{
+HyperProto::~HyperProto() {
 }
 
 bool HyperProto::Init(OnUdpSend on_send, OnUsrRecv on_recv,
-                      OnUsrCtxSent on_ctx_sent)
-{
+                      OnUsrCtxSent on_ctx_sent) {
   using ccb::BindClosure;
   const Options& opt = env_.opt();
   // init TxSessionManager
@@ -101,8 +97,7 @@ bool HyperProto::Init(OnUdpSend on_send, OnUsrRecv on_recv,
   return true;
 }
 
-void HyperProto::OnUdpRecv(const Buf& buf, const Addr& addr)
-{
+void HyperProto::OnUdpRecv(const Buf& buf, const Addr& addr) {
   RxRequest* req = NewRxRequest(buf, addr);
   if (!req) {
     WLOG("OnUdpRecv: NewRxRequest failed!");
@@ -112,8 +107,7 @@ void HyperProto::OnUdpRecv(const Buf& buf, const Addr& addr)
 }
 
 void HyperProto::OnUsrSend(const Buf& buf, const Addr& addr,
-                           void* ctx, OnUsrSent done)
-{
+                           void* ctx, OnUsrSent done) {
   TxRequest* req = NewTxRequest(buf, addr, ctx, std::move(done));
   if (!req) {
     WLOG("NewTxRequest failed!");
@@ -123,8 +117,7 @@ void HyperProto::OnUsrSend(const Buf& buf, const Addr& addr,
 }
 
 TxRequest* HyperProto::NewTxRequest(const Buf& buf, const Addr& addr, 
-                                    void* ctx, OnUsrSent done)
-{
+                                    void* ctx, OnUsrSent done) {
   size_t req_size = sizeof(TxRequest) + buf.len();
   TxRequest* req = static_cast<TxRequest*>(env_.alloc().Alloc(req_size));
   if (!req) {
@@ -142,8 +135,7 @@ TxRequest* HyperProto::NewTxRequest(const Buf& buf, const Addr& addr,
   return req;
 }
 
-void HyperProto::StartTxRequest(TxRequest* req)
-{
+void HyperProto::StartTxRequest(TxRequest* req) {
   assert(req && req->port && !req->ref_count && 
          req->size > sizeof(TxRequest));
   req->ref_count++;
@@ -157,8 +149,7 @@ void HyperProto::StartTxRequest(TxRequest* req)
   }
 }
 
-void HyperProto::DelTxRequest(TxRequest* req, bool done)
-{
+void HyperProto::DelTxRequest(TxRequest* req, bool done) {
   if (!done) {
     if (req->on_sent) req->on_sent(R_ERROR);
     else if (on_usr_ctx_sent_) on_usr_ctx_sent_(R_ERROR, req->ctx);
@@ -167,8 +158,7 @@ void HyperProto::DelTxRequest(TxRequest* req, bool done)
   env_.alloc().Free(req, req->size);
 }
 
-RxRequest* HyperProto::NewRxRequest(const Buf& buf, const Addr& addr)
-{
+RxRequest* HyperProto::NewRxRequest(const Buf& buf, const Addr& addr) {
   size_t req_size = sizeof(RxRequest) + buf.len();
   RxRequest* req = static_cast<RxRequest*>(env_.alloc().Alloc(req_size));
   if (req) {
@@ -180,18 +170,16 @@ RxRequest* HyperProto::NewRxRequest(const Buf& buf, const Addr& addr)
   return req;
 }
 
-void HyperProto::StartRxRequest(RxRequest* req)
-{
+void HyperProto::StartRxRequest(RxRequest* req) {
   assert(req && req->size > sizeof(RxRequest) && !req->ref_count);
-  req->ref_count++; // acquire local reference
+  req->ref_count++;  // acquire local reference
   req->peer = peer_mgr_->GetPeer(req->addr);
   const Buf buf{req->data, req->size - sizeof(RxRequest)};
   ParseRxPacket(buf, req->addr, req);
-  if (!--req->ref_count) DelRxRequest(req); // release local reference
+  if (!--req->ref_count) DelRxRequest(req);  // release local reference
 }
 
-void HyperProto::DelRxRequest(RxRequest* req)
-{
+void HyperProto::DelRxRequest(RxRequest* req) {
   env_.alloc().Free(req, req->size);
 }
 
@@ -199,16 +187,14 @@ void HyperProto::OnTxSessSendFrag(TxRequest* req,
                                   const Buf& buf,
                                   uint32_t seq,
                                   uint16_t frag_count,
-                                  uint16_t frag_index)
-{
+                                  uint16_t frag_index) {
   req->ref_count++;
   req->peer->tx_buffer()->AddData(seq, frag_count, frag_index, buf, req);
   DLOG("TxSessionSendFrag len:%lu id:(-, -, %u, %hu, %hu)", 
                                  buf.len(), seq, frag_count, frag_index);
 }
 
-void HyperProto::OnTxSessDone(TxRequest* req, Result res)
-{
+void HyperProto::OnTxSessDone(TxRequest* req, Result res) {
   if (req->on_sent) req->on_sent(res);
   else if (on_usr_ctx_sent_) on_usr_ctx_sent_(res, req->ctx);
 
@@ -218,8 +204,7 @@ void HyperProto::OnTxSessDone(TxRequest* req, Result res)
 }
 
 void HyperProto::ParseRxPacket(const Buf& buf, const Addr& addr, 
-                               RxRequest* req)
-{
+                               RxRequest* req) {
   const uint8_t* ptr = static_cast<const uint8_t*>(buf.ptr());
   size_t left = buf.len();
 
@@ -281,7 +266,7 @@ void HyperProto::ParseRxPacket(const Buf& buf, const Addr& addr,
           }
           frag_req->peer = req->peer;
         }
-        frag_req->ref_count++; // acquire reference for RxFragCache
+        frag_req->ref_count++;  // acquire reference for RxFragCache
         new (&frag_req->frag_buf) Buf(data_seg->data, data_len);
         if (!frag_cache_->AddFrag(addr, proc_sess_id, seq, frag_count, 
                                   frag_index, (void*)frag_req)) {
@@ -380,8 +365,7 @@ void HyperProto::SendAck(RxRequest* req,
                          uint32_t proc_sess_id, 
                          uint32_t seq,
                          uint16_t frag_count,
-                         uint16_t frag_index)
-{
+                         uint16_t frag_index) {
   req->peer->tx_buffer()->AddAck(proc_sess_id, seq, frag_count, frag_index);
   DLOG("SendAck id:(-, %u, %u, %hu, %hu)", 
                                  proc_sess_id, seq, frag_count, frag_index);
@@ -392,8 +376,7 @@ void HyperProto::OnRxFragCacheComplete(const Addr& addr,
                                        uint32_t seq,
                                        uint16_t frag_count,
                                        void** frag_list,
-                                       Result result)
-{
+                                       Result result) {
   Peer* peer = nullptr;
   std::string pkt;
   if (result == R_SUCCESS) {
@@ -406,7 +389,7 @@ void HyperProto::OnRxFragCacheComplete(const Addr& addr,
     if (result == R_SUCCESS) {
       pkt.append(req->frag_buf.char_ptr(), req->frag_buf.len());
     }
-    if (!--req->ref_count) DelRxRequest(req); // release ref by RxFragCache
+    if (!--req->ref_count) DelRxRequest(req);  // release ref by RxFragCache
   }
   if (result == R_SUCCESS) {
     if (!rx_dup_cache_->CheckDup(peer, proc_sess_id, seq)) {
@@ -425,8 +408,7 @@ void HyperProto::OnRxFragCacheComplete(const Addr& addr,
 
 void HyperProto::OnFlushTxBuffer(Peer* peer,
                                  const SegDesc* segs,
-                                 size_t count)
-{
+                                 size_t count) {
   static thread_local uint8_t buffer[kMaxUdpPktSize];
   uint8_t* ptr = buffer;
   size_t left = sizeof(buffer);
@@ -495,7 +477,7 @@ void HyperProto::OnFlushTxBuffer(Peer* peer,
   size_t pkt_len = ptr - buffer;
   pkt_hdr->pkt_len = htons(pkt_len);
 
-  if (env_.opt().proxy_f) { // proxy is enabled
+  if (env_.opt().proxy_f) {  // proxy is enabled
     Addr proxy_addr = env_.opt().proxy_f(peer->addr());
     pkt_hdr->to_ip = peer->addr().n_ip();
     pkt_hdr->to_port = peer->addr().n_port();
@@ -508,5 +490,5 @@ void HyperProto::OnFlushTxBuffer(Peer* peer,
   on_udp_send_({buffer, pkt_len}, peer->addr());
 }
 
-} // namespace hudp
+}  // namespace hudp
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -33,8 +33,7 @@
 
 namespace hudp {
 
-std::pair<bool, Addr> Addr::ParseFromString(const std::string& ip_port)
-{
+std::pair<bool, Addr> Addr::ParseFromString(const std::string& ip_port) {
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
     defined(__GNUC_PATCHLEVEL__) && \
     __GNUC__*10000000 + __GNUC_MINOR__*10000 + __GNUC_PATCHLEVEL__ >= 40090000

@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -38,16 +38,14 @@
 
 namespace hudp {
 
-static unsigned int GenerateSeed()
-{
+static unsigned int GenerateSeed() {
   unsigned int seed = static_cast<unsigned int>(time(nullptr));
   int f = open("/dev/urandom", O_RDONLY);
   if (f >= 0) read(f, &seed, sizeof(seed));
   return seed;
 }
 
-static unsigned int GetGlobalSeed()
-{
+static unsigned int GetGlobalSeed() {
   static unsigned int global_seed = GenerateSeed();
   return global_seed;
 }
@@ -57,17 +55,14 @@ thread_local unsigned int Env::seed_tls = GetGlobalSeed();
 Env::Env(const Options& opt, ccb::TimerWheel* tw)
   : BaseEnv(opt)
   , timerw_(tw)
-  , alloc_(HUDP_MODULE(ChunkAlloc, BaseEnv::opt().chunk_alloc_module, *this))
-{
+  , alloc_(HUDP_MODULE(ChunkAlloc, BaseEnv::opt().chunk_alloc_module, *this)) {
   Log(kDebug, "initialized seed = %u", seed_tls);
 }
 
-Env::~Env()
-{
+Env::~Env() {
 }
 
-uint32_t Env::Rand() const
-{
+uint32_t Env::Rand() const {
   return static_cast<uint32_t>(rand_r(&seed_tls));
 }
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,8 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_PEER_H
-#define _HUDP_PEER_H
+#ifndef HUDP_PEER_H_
+#define HUDP_PEER_H_
 
 #include "ccbase/timer_wheel.h"
 #include "ccbase/worker_group.h"
@@ -40,9 +40,8 @@
 
 namespace hudp {
 
-class Peer
-{
-public:
+class Peer {
+ public:
   using OnFlush = TxBuffer::OnFlush;
 
   Peer(const Env& env, const Addr& addr, uint32_t init_seq,
@@ -79,7 +78,7 @@ public:
     return &rdc_cache_;
   }
 
-private:
+ private:
   const Env& env_;
   Addr addr_;
   uint32_t next_seq_;
@@ -89,6 +88,6 @@ private:
   RDCNode rdc_cache_;
 };
 
-} // namespace hudp
+}  // namespace hudp
 
-#endif // _HUDP_PEER_H
+#endif  // HUDP_PEER_H_

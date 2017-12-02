@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,8 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_TX_SESSION_MANAGER_H
-#define _HUDP_TX_SESSION_MANAGER_H
+#ifndef HUDP_TX_SESSION_MANAGER_H_
+#define HUDP_TX_SESSION_MANAGER_H_
 
 #include <vector>
 #include "ccbase/worker_group.h"
@@ -42,8 +42,7 @@ namespace hudp {
 
 class Peer;
 
-struct TxRequest
-{
+struct TxRequest {
   uint32_t size;
   uint32_t ip;
   uint16_t port;
@@ -54,9 +53,8 @@ struct TxRequest
   uint8_t data[0];
 };
 
-class TxSessionManager
-{
-public:
+class TxSessionManager {
+ public:
   using OnSendFrag = ccb::ClosureFunc<void(TxRequest*,
                                            const Buf&,
                                            uint32_t seq,
@@ -80,7 +78,7 @@ public:
   bool AckSession(Peer* peer, uint32_t seq, uint16_t frag_count,
                                             uint16_t frag_index);
 
-public:
+ public:
   struct NodeKey {
     uint32_t ip;
     uint16_t port;
@@ -109,7 +107,7 @@ public:
     }
   };
 
-private:
+ private:
   bool AddSessionConst(const TxRequest* req);
   void OnRetransTimer(Node* node, uint32_t seq_index);
   void DelSession(Node* node, uint32_t seq_index);
@@ -134,8 +132,7 @@ private:
 namespace std {
 
 template <>
-struct hash<hudp::TxSessionManager::NodeKey>
-{
+struct hash<hudp::TxSessionManager::NodeKey> {
   std::size_t operator()(const hudp::TxSessionManager::NodeKey& key) const {
     return (key.ip + ((size_t)key.port << 16UL)
                    + ((size_t)key.base_seq << 32UL));
@@ -144,4 +141,4 @@ struct hash<hudp::TxSessionManager::NodeKey>
 
 }
 
-#endif // _HUDP_TX_SESSION_MANAGER_H
+#endif  // HUDP_TX_SESSION_MANAGER_H_

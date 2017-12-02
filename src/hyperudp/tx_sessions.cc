@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -51,8 +51,7 @@ bool TxSessions::Init(size_t htable_size,
 }
 
 bool TxSessions::AddSession(const Buf& buf, const Addr& addr, uint32_t seq,
-                            void* ctx)
-{
+                            void* ctx) {
   NodeKey key = {addr.ip(), addr.port(), seq};
   bool is_found;
   Node* node = (Node*)hash_table_.FindOrAlloc(key, &is_found);
@@ -106,8 +105,7 @@ bool TxSessions::AddSession(const Buf& buf, const Addr& addr, uint32_t seq,
 }
 
 bool TxSessions::AckSession(const Addr& addr, uint32_t seq, 
-                            uint16_t frag_count, uint16_t frag_index)
-{
+                            uint16_t frag_count, uint16_t frag_index) {
   NodeKey key = {addr.ip(), addr.port(), seq};
   Node* node = (Node*)hash_table_.Find(key);
   if (!node) {
@@ -149,8 +147,7 @@ bool TxSessions::AckSession(const Addr& addr, uint32_t seq,
   return true;
 }
 
-void TxSessions::DelSession(Node* node)
-{
+void TxSessions::DelSession(Node* node) {
   node->timer_owner.~TimerOwner();
   node->key.port = 0;
   node->pkt_ptr = nullptr;
@@ -162,8 +159,7 @@ void TxSessions::DelSession(Node* node)
   node->ctx = nullptr;
 }
 
-void TxSessions::OnRetransTimer(TxSessions::Node* node, uint16_t count)
-{
+void TxSessions::OnRetransTimer(TxSessions::Node* node, uint16_t count) {
   assert(node && node->key.port && node->pkt_ptr);
   count = count + 1;
   if (count < tmo_vec_.size()) {

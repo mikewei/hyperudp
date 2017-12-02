@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,8 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_ADDR_H
-#define _HUDP_ADDR_H
+#ifndef HUDP_ADDR_H_
+#define HUDP_ADDR_H_
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -38,9 +38,8 @@
 
 namespace hudp {
 
-class Addr
-{
-public:
+class Addr {
+ public:
   Addr() = default;
   Addr(const sockaddr_in& sa) 
     : sa_(sa) {}
@@ -122,13 +121,12 @@ private:
   sockaddr_in sa_;
 };
 
-} // namespace hudp
+}  // namespace hudp
 
 namespace std {
 
 template <>
-struct hash<hudp::Addr>
-{
+struct hash<hudp::Addr> {
   std::size_t operator()(const hudp::Addr& key) const {
     // consider balance when used as ( hash() % 2/4/8 )
     return (key.ip() + key.port() + ((size_t)key.ip() << 32UL)
@@ -136,6 +134,6 @@ struct hash<hudp::Addr>
   }
 };
 
-} // namespace std
+}  // namespace std
 
-#endif // _HUDP_ADDR_H
+#endif  // HUDP_ADDR_H_

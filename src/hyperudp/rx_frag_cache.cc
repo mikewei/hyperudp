@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -34,8 +34,7 @@ namespace hudp {
 
 bool RxFragCache::Init(size_t htable_size,
                      uint32_t timeout,
-                     OnComplete on_complete)
-{
+                     OnComplete on_complete) {
   if (!hash_table_.InitForWrite("", htable_size)) {
     ELOG("RxFragCache: hash table init failed! size = %lu", htable_size);
     return false;
@@ -47,8 +46,7 @@ bool RxFragCache::Init(size_t htable_size,
 }
 
 bool RxFragCache::AddFrag(const Addr& addr, uint32_t proc_sess_id, uint32_t seq,
-                        uint16_t frag_count, uint16_t frag_index, void* frag)
-{
+                        uint16_t frag_count, uint16_t frag_index, void* frag) {
   assert(frag_index < frag_count);
   NodeKey key = {proc_sess_id, seq, addr.ip(), addr.port()};
   bool is_found;
@@ -101,16 +99,14 @@ bool RxFragCache::AddFrag(const Addr& addr, uint32_t proc_sess_id, uint32_t seq,
   return true;
 }
 
-void RxFragCache::OnNodeTimeout(Node* node)
-{
+void RxFragCache::OnNodeTimeout(Node* node) {
   on_complete_({node->key.ip, node->key.port},
                node->key.proc_sess_id, node->key.seq, 
                node->frag_count, node->frag_list, R_TIMEOUT);
   DeleteNode(node);
 }
 
-void RxFragCache::DeleteNode(Node* node)
-{
+void RxFragCache::DeleteNode(Node* node) {
   node->timer_owner.~TimerOwner();
   if (node->frag_list != node->frag_buf)
     delete[] node->frag_list;

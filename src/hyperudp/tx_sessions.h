@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,8 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_TX_SESSIONS_H
-#define _HUDP_TX_SESSIONS_H
+#ifndef HUDP_TX_SESSIONS_H_
+#define HUDP_TX_SESSIONS_H_
 
 #include <vector>
 #include "ccbase/worker_group.h"
@@ -41,9 +41,8 @@
 
 namespace hudp {
 
-class TxSessions
-{
-public:
+class TxSessions {
+ public:
   using OnSendFrag = ccb::ClosureFunc<void(const Buf&,
                                            const Addr&,
                                            uint32_t seq,
@@ -65,7 +64,7 @@ public:
   bool AckSession(const Addr& addr, uint32_t seq, uint16_t frag_count,
                   uint16_t frag_index);
 
-private:
+ private:
   struct Node;
   void OnRetransTimer(Node* node, uint16_t count);
   void DelSession(Node* node);
@@ -76,7 +75,7 @@ private:
     return timerw_;
   }
 
-public:
+ public:
   struct NodeKey {
     uint32_t ip;
     uint16_t port;
@@ -89,7 +88,7 @@ public:
     }
   };
 
-private:
+ private:
   struct Node {
     NodeKey         key;
     uint32_t        pkt_len;
@@ -117,8 +116,7 @@ private:
 namespace std {
 
 template <>
-struct hash<hudp::TxSessions::NodeKey>
-{
+struct hash<hudp::TxSessions::NodeKey> {
   std::size_t operator()(const hudp::TxSessions::NodeKey& key) const {
     return (key.ip + ((size_t)key.port << 16UL)
                    + ((size_t)key.seq << 32UL));
@@ -127,4 +125,4 @@ struct hash<hudp::TxSessions::NodeKey>
 
 }
 
-#endif // _HUDP_TX_SESSIONS_H
+#endif // HUDP_TX_SESSIONS_H_

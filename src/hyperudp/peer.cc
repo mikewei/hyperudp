@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -36,8 +36,7 @@ Peer::Peer(const Env& env, const Addr& addr, uint32_t init_seq,
     : env_(env)
     , addr_(addr)
     , next_seq_(init_seq)
-    , tx_buffer_(env, this, on_flush)
-{
+    , tx_buffer_(env, this, on_flush) {
 }
 
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,8 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_CONSTANTS_H
-#define _HUDP_CONSTANTS_H
+#ifndef HUDP_CONSTANTS_H_
+#define HUDP_CONSTANTS_H_
 
 #include <assert.h>
 #include "hyperudp/protocol.h"
@@ -50,18 +50,16 @@ static constexpr size_t kMinMaxUdpPktSize = kPktHeaderSize + kMinDataSegSize
                                             + kMinFragDataSize
                                             + kMaxAckSegSize * 2;
                                                           
-static inline size_t FragDataSize(size_t max_udp_pkt_size)
-{
+static inline size_t FragDataSize(size_t max_udp_pkt_size) {
   assert(max_udp_pkt_size >= kMinMaxUdpPktSize);
   return max_udp_pkt_size - kMinMaxUdpPktSize + kMinFragDataSize;
 }
 
-static inline size_t MaxSegmentsSize(size_t max_udp_pkt_size)
-{
+static inline size_t MaxSegmentsSize(size_t max_udp_pkt_size) {
   assert(max_udp_pkt_size >= kMinMaxUdpPktSize);
   return max_udp_pkt_size - kPktHeaderSize;
 }
 
 }
 
-#endif // _HUDP_CONSTANTS_H
+#endif  // HUDP_CONSTANTS_H_

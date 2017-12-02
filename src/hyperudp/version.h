@@ -27,25 +27,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HUDP_UDP_IO_H_
-#define HUDP_UDP_IO_H_
+#ifndef HUDP_VERSION_H_
+#define HUDP_VERSION_H_
 
-#include "ccbase/closure.h"
-#include "hyperudp/addr.h"
-#include "hyperudp/buf.h"
+// conform to Semantic Versioning (http://semver.org)
 
-namespace hudp {
+#define HYPERUDP_MAJOR_VERSION 1
+#define HYPERUDP_MINOR_VERSION 0
+#define HYPERUDP_PATCH_VERSION 0
+#define HYPERUDP_PRERLEASE_VERSION beta
 
-class UdpIO {
- public:
-  using OnRecv = ccb::ClosureFunc<void(const Buf&, const Addr&)>;
-
-  virtual ~UdpIO() {}
-  virtual bool Init(const Addr& listen_addr, OnRecv on_recv) = 0;
-  virtual bool Send(const Buf& buf, const Addr& addr) = 0;
-  virtual void Cleanup() = 0;
-};
-
-}
-
-#endif  // HUDP_UDP_IO_H_
+#endif  // HUDP_VERSION_H_

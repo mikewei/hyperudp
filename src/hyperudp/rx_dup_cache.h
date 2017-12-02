@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,8 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_RX_DUP_CACHE_H
-#define _HUDP_RX_DUP_CACHE_H
+#ifndef HUDP_RX_DUP_CACHE_H_
+#define HUDP_RX_DUP_CACHE_H_
 
 #include "ccbase/timer_wheel.h"
 #include "shmc/shm_hash_table.h"
@@ -38,9 +38,8 @@ namespace hudp {
 
 class Peer;
 
-class RxDupCache
-{
-public:
+class RxDupCache {
+ public:
   RxDupCache(const Env& env)
     : env_(env) {}
 
@@ -70,7 +69,7 @@ public:
     }
   };
 
-private:
+ private:
   bool IsValidNode(const Node& node) const;
 
   shmc::ShmHashTable<NodeKey, Node, shmc::HEAP> hash_table_;
@@ -79,19 +78,17 @@ private:
   uint32_t timeout_;
 };
 
-inline bool RxDupCache::IsValidNode(const Node& node) const
-{
+inline bool RxDupCache::IsValidNode(const Node& node) const {
   return (node.key.port != 0 && 
           node.mtime + timeout_ > env_.timerw()->GetCurrentTick());
 }
 
-} // namespace hudp
+}  // namespace hudp
 
 namespace std {
 
 template <>
-struct hash<hudp::RxDupCache::NodeKey>
-{
+struct hash<hudp::RxDupCache::NodeKey> {
   std::size_t operator()(const hudp::RxDupCache::NodeKey& key) const {
     return (key.ip + ((size_t)key.port << 16UL)
                    + ((size_t)key.base_seq << 32UL)
@@ -99,6 +96,6 @@ struct hash<hudp::RxDupCache::NodeKey>
   }
 };
 
-} // namespace std
+}  // namespace std
 
-#endif // _HUDP_RX_DUP_CACHE_H
+#endif  // _HUDP_RX_DUP_CACHE_H

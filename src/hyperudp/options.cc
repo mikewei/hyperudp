@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -81,8 +81,7 @@ GFLAGS_DEFINE_STR(chunk_alloc_module,
                   "module name of chunk_alloc implementation");
 
 OptionsBuilder::OptionsBuilder()
-  : opt_(new Options)
-{
+  : opt_(new Options) {
   // WorkerGroup options
   WorkerNumber(2);
   WorkerQueueSize(10000);
@@ -106,12 +105,10 @@ OptionsBuilder::OptionsBuilder()
   ChunkAllocModule("simple");
 }
 
-OptionsBuilder::~OptionsBuilder()
-{
+OptionsBuilder::~OptionsBuilder() {
 }
 
-Options OptionsBuilder::Build()
-{
+Options OptionsBuilder::Build() {
   GFLAGS_MAY_OVERRIDE(worker_num, WorkerNumber);
   GFLAGS_MAY_OVERRIDE(worker_queue_size, WorkerQueueSize);
   GFLAGS_MAY_OVERRIDE(max_tx_sessions, MaxTxSessions);
@@ -129,8 +126,7 @@ Options OptionsBuilder::Build()
 }
 
 OptionsBuilder& OptionsBuilder::LogHandler(LogLevel lv, 
-                     ccb::ClosureFunc<void(LogLevel, const char*)> f)
-{
+                     ccb::ClosureFunc<void(LogLevel, const char*)> f) {
   opt_->log_lv = lv;
   opt_->log_f  = std::move(f);
   return *this;
@@ -138,8 +134,7 @@ OptionsBuilder& OptionsBuilder::LogHandler(LogLevel lv,
 
 // WorkerGroup options
 
-OptionsBuilder& OptionsBuilder::WorkerNumber(size_t num)
-{
+OptionsBuilder& OptionsBuilder::WorkerNumber(size_t num) {
   if (num <= 0 || num >= std::numeric_limits<uint16_t>::max()) {
     throw std::invalid_argument("Invalid value! expect [1, 65535]");
   }
@@ -147,8 +142,7 @@ OptionsBuilder& OptionsBuilder::WorkerNumber(size_t num)
   return *this;
 }
 
-OptionsBuilder& OptionsBuilder::WorkerQueueSize(size_t num)
-{
+OptionsBuilder& OptionsBuilder::WorkerQueueSize(size_t num) {
   if (num <= 0) {
     throw std::invalid_argument("Invalid value!");
   }
@@ -158,8 +152,7 @@ OptionsBuilder& OptionsBuilder::WorkerQueueSize(size_t num)
 
 // TxSessionManager options
 
-OptionsBuilder& OptionsBuilder::MaxTxSessions(size_t num)
-{
+OptionsBuilder& OptionsBuilder::MaxTxSessions(size_t num) {
   if (num < opt_->worker_num) {
     throw std::invalid_argument("Invalid value!");
   }
@@ -167,24 +160,21 @@ OptionsBuilder& OptionsBuilder::MaxTxSessions(size_t num)
   return *this;
 }
 
-OptionsBuilder& OptionsBuilder::MaxUdpPktSize(size_t num)
-{
+OptionsBuilder& OptionsBuilder::MaxUdpPktSize(size_t num) {
   if (num > kMaxUdpPktSize) num = kMaxUdpPktSize;
   else if (num < kMinMaxUdpPktSize) num = kMinMaxUdpPktSize;
   opt_->max_udp_pkt_size = num;
   return *this;
 }
 
-OptionsBuilder& OptionsBuilder::RetransTimeouts(std::vector<uint32_t> vec)
-{
+OptionsBuilder& OptionsBuilder::RetransTimeouts(std::vector<uint32_t> vec) {
   opt_->retrans_timeouts = std::move(vec);
   return *this;
 }
 
 // TxBuffer options
 
-OptionsBuilder& OptionsBuilder::TxDelayAlgoModule(std::string name)
-{
+OptionsBuilder& OptionsBuilder::TxDelayAlgoModule(std::string name) {
   if (!ModuleRegistry<TxDelayAlgo>::Get()->IsModuleAvailable(name)) {
     throw std::runtime_error("Unavailable TxDelayAlgo module: " + name);
   }
@@ -192,8 +182,7 @@ OptionsBuilder& OptionsBuilder::TxDelayAlgoModule(std::string name)
   return *this;
 }
 
-OptionsBuilder& OptionsBuilder::MaxTxDelay(size_t ms)
-{
+OptionsBuilder& OptionsBuilder::MaxTxDelay(size_t ms) {
   if (ms > 60000) ms = 60000;
   opt_->max_tx_delay = ms;
   return *this;
@@ -201,8 +190,7 @@ OptionsBuilder& OptionsBuilder::MaxTxDelay(size_t ms)
 
 // RxFragCache options
 
-OptionsBuilder& OptionsBuilder::MaxRxFragCacheNodes(size_t num)
-{
+OptionsBuilder& OptionsBuilder::MaxRxFragCacheNodes(size_t num) {
   if (num < opt_->worker_num) {
     throw std::invalid_argument("Invalid value!");
   }
@@ -210,8 +198,7 @@ OptionsBuilder& OptionsBuilder::MaxRxFragCacheNodes(size_t num)
   return *this;
 }
 
-OptionsBuilder& OptionsBuilder::RxFragCacheTimeout(size_t ms)
-{
+OptionsBuilder& OptionsBuilder::RxFragCacheTimeout(size_t ms) {
   if (ms > std::numeric_limits<uint32_t>::max() || ms <= 0) {
     throw std::invalid_argument("Invalid timeout value!");
   }
@@ -221,20 +208,17 @@ OptionsBuilder& OptionsBuilder::RxFragCacheTimeout(size_t ms)
 
 // RxDupCache options
 
-OptionsBuilder& OptionsBuilder::EnableRxDupCache(bool on)
-{
+OptionsBuilder& OptionsBuilder::EnableRxDupCache(bool on) {
   opt_->enable_rx_dup_cache = on;
   return *this;
 }
 
-OptionsBuilder& OptionsBuilder::RxDupCacheSize(size_t num)
-{
+OptionsBuilder& OptionsBuilder::RxDupCacheSize(size_t num) {
   opt_->rx_dup_cache_size = num;
   return *this;
 }
 
-OptionsBuilder& OptionsBuilder::RxDupCacheTimeout(size_t ms)
-{
+OptionsBuilder& OptionsBuilder::RxDupCacheTimeout(size_t ms) {
   if (ms > std::numeric_limits<uint32_t>::max() || ms <= 0) {
     throw std::invalid_argument("Invalid timeout value!");
   }
@@ -243,16 +227,14 @@ OptionsBuilder& OptionsBuilder::RxDupCacheTimeout(size_t ms)
 }
 
 // HyperProto options
-OptionsBuilder& OptionsBuilder::Proxy(ccb::ClosureFunc<Addr(const Addr&)> f)
-{
+OptionsBuilder& OptionsBuilder::Proxy(ccb::ClosureFunc<Addr(const Addr&)> f) {
   opt_->proxy_f = f;
   return *this;
 }
 
 // UdpIO options
 
-OptionsBuilder& OptionsBuilder::UdpIOModule(std::string name)
-{
+OptionsBuilder& OptionsBuilder::UdpIOModule(std::string name) {
   if (!ModuleRegistry<UdpIO>::Get()->IsModuleAvailable(name)) {
     throw std::runtime_error("Unavailable UdpIO module: " + name);
   }
@@ -262,8 +244,7 @@ OptionsBuilder& OptionsBuilder::UdpIOModule(std::string name)
 
 // AllocChunk options
 
-OptionsBuilder& OptionsBuilder::ChunkAllocModule(std::string name)
-{
+OptionsBuilder& OptionsBuilder::ChunkAllocModule(std::string name) {
   if (!ModuleRegistry<ChunkAlloc>::Get()->IsModuleAvailable(name)) {
     throw std::runtime_error("Unavailable ChunkAlloc module: " + name);
   }

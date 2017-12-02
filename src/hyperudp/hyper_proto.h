@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,8 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_HYPER_PROTO_H
-#define _HUDP_HYPER_PROTO_H
+#ifndef HUDP_HYPER_PROTO_H_
+#define HUDP_HYPER_PROTO_H_
 
 #include "hyperudp/env.h"
 
@@ -43,9 +43,8 @@ class RxFragCache;
 class RxDupCache;
 class SegDesc;
 
-class HyperProto
-{
-public:
+class HyperProto {
+ public:
   using OnUdpSend = ccb::ClosureFunc<void(const Buf&, const Addr&)>;
   using OnUsrRecv = HyperUdp::OnRecv;
   using OnUsrSent = HyperUdp::OnSent;
@@ -67,7 +66,7 @@ public:
   void StartRxRequest(RxRequest* req);
   void DelRxRequest(RxRequest* req);
 
-private:
+ private:
   // to be deleted
   void OnTxSessionsSendFrag(const Buf& buf,
                             const Addr& addr,
@@ -94,7 +93,7 @@ private:
                              Result result);
   void OnFlushTxBuffer(Peer* peer, const SegDesc* segs, size_t count);
 
-private:
+ private:
   const Env& env_;
   std::unique_ptr<PeerManager> peer_mgr_;
   std::unique_ptr<TxSessionManager> tx_sess_mgr_;
@@ -108,4 +107,4 @@ private:
 
 }
 
-#endif // _HUDP_HYPER_PROTO_H
+#endif  // HUDP_HYPER_PROTO_H_

@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -27,15 +27,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_PROTOCOL_H
-#define _HUDP_PROTOCOL_H
+#ifndef HUDP_PROTOCOL_H_
+#define HUDP_PROTOCOL_H_
 
 namespace hudp {
 
 // ---------------- protocol definition ------------------
 
-struct PacketHeader
-{
+struct PacketHeader {
   uint8_t hudp_tag;
   uint8_t hudp_ver;
   uint16_t pkt_len;
@@ -46,19 +45,16 @@ struct PacketHeader
   uint32_t proc_sess_id;
 } __attribute__((__packed__));
 
-struct SegmentHeader
-{
+struct SegmentHeader {
   uint16_t seg_type;
   uint16_t seg_len;
 } __attribute__((__packed__));
 
-enum SegmentType
-{
+enum SegmentType {
   SEG_DATA = 1, SEG_ACK = 2, SEG_FRAG_ACK = 3
 };
 
-struct DataSegment
-{
+struct DataSegment {
   SegmentHeader hdr;
   uint32_t seq;
   uint16_t frag_count;
@@ -66,16 +62,14 @@ struct DataSegment
   uint8_t data[0];
 } __attribute__((__packed__));
 
-struct AckSegment
-{
+struct AckSegment {
   SegmentHeader hdr;
   uint32_t proc_sess_id;
   uint32_t base_seq;
   uint32_t seq_bitmap;
 } __attribute__((__packed__));
 
-struct FragAckSegment
-{
+struct FragAckSegment {
   SegmentHeader hdr;
   uint32_t proc_sess_id;
   uint32_t seq;
@@ -86,4 +80,4 @@ struct FragAckSegment
 
 }
 
-#endif // _HUDP_PROTOCOL_H
+#endif  // HUDP_PROTOCOL_H_

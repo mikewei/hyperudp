@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,8 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_SIMPLE_UDP_IO_H
-#define _HUDP_SIMPLE_UDP_IO_H
+#ifndef HUDP_SIMPLE_UDP_IO_H_
+#define HUDP_SIMPLE_UDP_IO_H_
 
 #include <atomic>
 #include <thread>
@@ -39,16 +39,15 @@
 
 namespace hudp {
 
-class SimpleUdpIO : public UdpIO
-{
-public:
+class SimpleUdpIO : public UdpIO {
+ public:
   SimpleUdpIO(const Env& env);
   ~SimpleUdpIO() override;
   bool Init(const Addr& listen_addr, OnRecv on_recv) override;
   bool Send(const Buf& buf, const Addr& addr) override;
   void Cleanup() override;
 
-private:
+ private:
   const Env& env_;
   int sock_ = -1;
   OnRecv on_recv_;
@@ -58,4 +57,4 @@ private:
 
 }
 
-#endif // _HUDP_SIMPLE_UDP_IO_H
+#endif  // HUDP_SIMPLE_UDP_IO_H_

@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,8 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_TB_MAX_TX_DELAY_ALGO_H
-#define _HUDP_TB_MAX_TX_DELAY_ALGO_H
+#ifndef HUDP_TB_MAX_TX_DELAY_ALGO_H_
+#define HUDP_TB_MAX_TX_DELAY_ALGO_H_
 
 #include "ccbase/token_bucket.h"
 #include "ccbase/timer_wheel.h"
@@ -37,9 +37,8 @@
 
 namespace hudp {
 
-class TbMaxTxDelayAlgo : public MaxTxDelayAlgo
-{
-public:
+class TbMaxTxDelayAlgo : public MaxTxDelayAlgo {
+ public:
   TbMaxTxDelayAlgo(const Env& env)
     : MaxTxDelayAlgo(env)
     , tick_(env.timerw()->GetCurrentTick())
@@ -62,7 +61,7 @@ public:
     return MaxTxDelayAlgo::OnPendingSeg(seg_count);
   }
 
-protected:
+ protected:
   void UpdateTickAndTB() {
     auto tick = env_.timerw()->GetCurrentTick();
     if (tick > tick_) {
@@ -81,6 +80,6 @@ protected:
   struct timeval tv_;
 };
 
-} // namespace hudp
+}  // namespace hudp
 
-#endif // _HUDP_MAX_TX_DELAY_ALGO_H
+#endif  // HUDP_MAX_TX_DELAY_ALGO_H_

@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,14 +27,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_BUF_H
-#define _HUDP_BUF_H
+#ifndef HUDP_BUF_H_
+#define HUDP_BUF_H_
 
 namespace hudp {
 
-class Buf
-{
-public:
+class Buf {
+ public:
   template <class T>
   Buf(const T* ptr, size_t len)
     : ptr_(ptr), len_(len) {}
@@ -50,7 +49,8 @@ public:
   size_t len() const {
     return len_;
   }
-private:
+
+ private:
   const void* ptr_;
   size_t len_;
 
@@ -58,4 +58,4 @@ private:
 
 }
 
-#endif // _HUDP_BUF_H
+#endif  // HUDP_BUF_H_

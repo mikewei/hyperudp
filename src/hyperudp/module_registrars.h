@@ -38,4 +38,4 @@ HUDP_REGISTER_MODULE(TxDelayAlgo, tb_max_tx_delay, [](const Env& env) {
   return new TbMaxTxDelayAlgo(env);
 });
 
-} // namespace hudp
+}  // namespace hudp
