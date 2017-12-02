@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -42,14 +42,12 @@
 
 namespace hudp {
 
-static size_t Hash(const Addr& addr, size_t range)
-{
+static size_t Hash(const Addr& addr, size_t range) {
   return std::hash<Addr>()(addr) % range;
 }
 
-class HyperUdp::Impl
-{
-public:
+class HyperUdp::Impl {
+ public:
   using OnSent = HyperUdp::OnSent;
   using OnRecv = HyperUdp::OnRecv;
 
@@ -64,10 +62,10 @@ public:
     return workers_.get();
   }
 
-private:
+ private:
   void OnUdpRecv(const Buf& buf, const Addr& addr);
 
-private:
+ private:
   Env env_;
   std::unique_ptr<UdpIO> udp_io_;
   std::vector<std::unique_ptr<HyperProto>> hyper_proto_;
@@ -80,20 +78,17 @@ private:
 HyperUdp::Impl::Impl(const Options& opt)
   : env_(opt)
   , udp_io_(HUDP_MODULE(UdpIO, env_.opt().udp_io_module, env_))
-  , is_initialized_(false)
-{
+  , is_initialized_(false) {
 }
 
-HyperUdp::Impl::~Impl()
-{
+HyperUdp::Impl::~Impl() {
   // graceful destruction order:
   // udp-io cleanup -> worker-group dtor -> hyper-proto dtor -> udp-io dtor
   udp_io_->Cleanup();
 }
 
 bool HyperUdp::Impl::Init(const Addr& addr, OnRecv on_recv,
-                          OnCtxSent on_ctx_sent)
-{
+                          OnCtxSent on_ctx_sent) {
   assert(!is_initialized_);
   on_recv_ = std::move(on_recv);
   on_ctx_sent_ = std::move(on_ctx_sent);
@@ -128,8 +123,7 @@ bool HyperUdp::Impl::Init(const Addr& addr, OnRecv on_recv,
   return true;
 }
 
-void HyperUdp::Impl::OnUdpRecv(const Buf& buf, const Addr& addr)
-{
+void HyperUdp::Impl::OnUdpRecv(const Buf& buf, const Addr& addr) {
   assert(is_initialized_);
   size_t wid = Hash(addr, workers_->size());
   RxRequest* req = hyper_proto_[wid]->NewRxRequest(buf, addr);
@@ -138,7 +132,7 @@ void HyperUdp::Impl::OnUdpRecv(const Buf& buf, const Addr& addr)
     return;
   }
   if (!workers_->PostTask(wid, [this, req]{
-    size_t id = ccb::Worker::self()->id();
+    size_t id = ccb::WorkerGroup::Worker::self()->id();
     hyper_proto_[id]->StartRxRequest(req);
   })) {
     ILOG("OnUdpRecv: worker-queue overflow!");
@@ -147,8 +141,7 @@ void HyperUdp::Impl::OnUdpRecv(const Buf& buf, const Addr& addr)
 }
 
 void HyperUdp::Impl::Send(const Buf& buf, const Addr& addr,
-                          void* ctx, OnSent done)
-{
+                          void* ctx, OnSent done) {
   assert(is_initialized_);
   size_t wid = Hash(addr, workers_->size());
   TxRequest* req = hyper_proto_[wid]->NewTxRequest(buf, addr, ctx,
@@ -160,7 +153,7 @@ void HyperUdp::Impl::Send(const Buf& buf, const Addr& addr,
   if (workers_->is_current_thread(wid)) {
     hyper_proto_[wid]->StartTxRequest(req);
   } else if (!workers_->PostTask(wid, [this, req] {
-    size_t id = ccb::Worker::self()->id();
+    size_t id = ccb::WorkerGroup::Worker::self()->id();
     hyper_proto_[id]->StartTxRequest(req);
   })) {
     // PostTask failed
@@ -170,47 +163,38 @@ void HyperUdp::Impl::Send(const Buf& buf, const Addr& addr,
 }
 
 HyperUdp::HyperUdp()
-  : HyperUdp(OptionsBuilder().Build())
-{
+  : HyperUdp(OptionsBuilder().Build()) {
 }
 
 HyperUdp::HyperUdp(const Options& opt)
-  : pimpl_(new HyperUdp::Impl(opt))
-{
+  : pimpl_(new HyperUdp::Impl(opt)) {
 }
 
-HyperUdp::~HyperUdp()
-{
+HyperUdp::~HyperUdp() {
 }
 
-bool HyperUdp::Init(const Addr& addr, OnRecv on_recv)
-{
+bool HyperUdp::Init(const Addr& addr, OnRecv on_recv) {
   return pimpl_->Init(addr, std::move(on_recv), nullptr);
 }
 
-bool HyperUdp::Init(const Addr& addr, OnRecv on_recv, OnCtxSent on_ctx_sent)
-{
+bool HyperUdp::Init(const Addr& addr, OnRecv on_recv, OnCtxSent on_ctx_sent) {
   return pimpl_->Init(addr, std::move(on_recv), std::move(on_ctx_sent));
 }
 
-void HyperUdp::Send(const Buf& buf, const Addr& addr)
-{
+void HyperUdp::Send(const Buf& buf, const Addr& addr) {
   pimpl_->Send(buf, addr, nullptr, nullptr);
 }
 
-void HyperUdp::Send(const Buf& buf, const Addr& addr, OnSent done)
-{
+void HyperUdp::Send(const Buf& buf, const Addr& addr, OnSent done) {
   pimpl_->Send(buf, addr, nullptr, std::move(done));
 }
 
-void HyperUdp::Send(const Buf& buf, const Addr& addr, void* ctx)
-{
+void HyperUdp::Send(const Buf& buf, const Addr& addr, void* ctx) {
   pimpl_->Send(buf, addr, ctx, nullptr);
 }
 
-ccb::WorkerGroup* HyperUdp::GetWorkerGroup() const
-{
+ccb::WorkerGroup* HyperUdp::GetWorkerGroup() const {
   return pimpl_->worker_group();
 }
 
-} // namespace hudp
+}  // namespace hudp

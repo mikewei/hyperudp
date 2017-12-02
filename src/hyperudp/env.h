@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Bin Wei <bin@vip.qq.com>
+/* Copyright (c) 2016-2017, Bin Wei <bin@vip.qq.com>
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
  * distribution.
- *     * The name of of its contributors may not be used to endorse or 
+ *     * The names of its contributors may not be used to endorse or 
  * promote products derived from this software without specific prior 
  * written permission.
  * 
@@ -27,8 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _HUDP_ENV_H
-#define _HUDP_ENV_H
+#ifndef HUDP_ENV_H_
+#define HUDP_ENV_H_
 
 #include <stdarg.h>
 #include <assert.h>
@@ -70,9 +70,8 @@ class ChunkAlloc;
 #define IRET_F(...) RET_F(kInfo, __VA_ARGS__)
 #define DRET_F(...) RET_F(kDebug, __VA_ARGS__)
 
-class BaseEnv
-{
-public:
+class BaseEnv {
+ public:
   BaseEnv(const Options& opt)
     : opt_(new Options(opt)) {
   }
@@ -92,13 +91,12 @@ public:
     return (*opt_);
   }
 
-private:
+ private:
   std::unique_ptr<Options> opt_;
 };
 
-class Env : public BaseEnv
-{
-public:
+class Env : public BaseEnv {
+ public:
   Env(const Options& opt, ccb::TimerWheel* tw = nullptr);
   ~Env();
 
@@ -106,11 +104,12 @@ public:
     return (*alloc_);
   }
   ccb::TimerWheel* timerw() const {
-    return (timerw_ ? timerw_ : ccb::Worker::self());
+    return (timerw_ ? timerw_ : ccb::WorkerGroup::Worker::self());
   }
 
   uint32_t Rand() const;
-private:
+
+ private:
   ccb::TimerWheel* timerw_;
   std::unique_ptr<ChunkAlloc> alloc_;
   static thread_local unsigned int seed_tls;
@@ -118,4 +117,4 @@ private:
 
 }
 
-#endif // _HUDP_ENV_H
+#endif  // HUDP_ENV_H_
