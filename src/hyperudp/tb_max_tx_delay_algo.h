@@ -45,7 +45,8 @@ class TbMaxTxDelayAlgo : public MaxTxDelayAlgo {
     , tb_(1000/env.opt().max_tx_delay, // qps limit
           100/env.opt().max_tx_delay,  // bucket size
           100/env.opt().max_tx_delay,  // init size
-          GetTimeNow()) {}
+          GetTimeNow(),
+          false) {}
 
   virtual Action OnPendingSeg(size_t seg_count) override {
     if (seg_count == 0) {

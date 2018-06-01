@@ -51,7 +51,7 @@ void StartEchoClient()
   char buf[65536];
   uint32_t qps = static_cast<uint32_t>(FLAGS_qps);
   size_t len = (FLAGS_len < sizeof(buf) ? FLAGS_len : sizeof(buf));
-  ccb::TokenBucket tb{qps, qps/10, 0};
+  ccb::TokenBucket tb{qps, qps/10, 0, nullptr, false};
   while (true) {
     if (!tb.Get(1)) {
       usleep(1000);
