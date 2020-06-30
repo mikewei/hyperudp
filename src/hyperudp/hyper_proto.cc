@@ -265,7 +265,7 @@ void HyperProto::ParseRxPacket(const Buf& buf, const Addr& addr,
             WLOG("ParseRxPacket: NewRxRequest failed!");
           }
           frag_req->peer = req->peer;
-		  data_seg = (DataSegment*)(frag_req->data + (buf.len() - left)); // update data_seg for new frag_req
+          data_seg = (DataSegment*)(frag_req->data + (buf.len() - left)); // update data_seg for new frag_req
         }
         frag_req->ref_count++;  // acquire reference for RxFragCache
         new (&frag_req->frag_buf) Buf(data_seg->data, data_len);
